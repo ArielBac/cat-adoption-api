@@ -1,4 +1,6 @@
-﻿using CatAdotionApi.Data;
+﻿using AutoMapper;
+using CatAdotionApi.Data;
+using CatAdotionApi.Data.Dtos;
 using CatAdotionApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,21 +11,24 @@ namespace CatAdotionApi.Controllers;
 public class CatController : ControllerBase
 {
 	private CatAdoptionContext _context;
-    public CatController(CatAdoptionContext context)
+	private IMapper _mapper;
+    public CatController(CatAdoptionContext context, IMapper mapper)
 	{
 		_context = context;
+		_mapper = mapper;
 	}
 
 	[HttpGet]
-	public IEnumerable<Cat> Index()
+	public IEnumerable<ReadCatDto> Index()
 	{
-		return _context.Cats;
+		return _mapper.Map<List<ReadCatDto>>(_context.Cats);
 	}
 
 	[HttpPost]
 	[ProducesResponseType(StatusCodes.Status201Created)]
-	public IActionResult Create([FromBody] Cat cat)
+	public IActionResult Create([FromBody] UpdateCatDto catDto)
 	{
+		Cat cat = _mapper.Map<Cat>(catDto);
 		_context.Cats.Add(cat);
 		_context.SaveChanges();
 		return CreatedAtAction(nameof(Show), new { id = cat.Id }, cat); // Informa ao usuário em qual caminho ele pode encontrar o recurso criado
@@ -34,24 +39,18 @@ public class CatController : ControllerBase
 	{
 		var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
 		if (cat == null) return NotFound();
-		return Ok(cat);
+		var catDto = _mapper.Map<ReadCatDto>(cat);
+		return Ok(catDto);
 	}
 
 	// TODO
 	// Implementar DTOs e utilizar AutoMapper para melhorar esse procedimento
 	[HttpPut("{id}")]
-    public IActionResult Update(int id, [FromBody] Cat updatedCat)
+    public IActionResult Update(int id, [FromBody] UpdateCatDto catDto)
     {
         var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
 		if (cat == null) return NotFound();
-		
-		cat.Name= updatedCat.Name;
-		cat.Age = updatedCat.Age;
-		cat.Color = updatedCat.Color;
-		cat.Weight = updatedCat.Weight;
-		cat.Breed = updatedCat.Breed;
-		cat.Gender = updatedCat.Gender;
-
+		_mapper.Map(catDto, cat);
 		_context.SaveChanges();
 		return NoContent();
     }
