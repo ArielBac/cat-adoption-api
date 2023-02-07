@@ -1,4 +1,4 @@
-using CatAdotionApi.Data;
+using CatAdoptionApi.Data;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 

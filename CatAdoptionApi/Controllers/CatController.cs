@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
-using CatAdotionApi.Data;
-using CatAdotionApi.Data.Dtos;
-using CatAdotionApi.Models;
+using CatAdoptionApi.Data;
+using CatAdoptionApi.Data.Dtos;
+using CatAdoptionApi.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CatAdotionApi.Controllers;
+namespace CatAdoptionApi.Controllers;
 
 [ApiController]
 [Route("[controller]")]

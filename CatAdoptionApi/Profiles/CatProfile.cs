@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using CatAdotionApi.Data.Dtos;
-using CatAdotionApi.Models;
+using CatAdoptionApi.Data.Dtos;
+using CatAdoptionApi.Models;
 
-namespace CatAdotionApi.Profiles;
+namespace CatAdoptionApi.Profiles;
 
 public class CatProfile : Profile
 {

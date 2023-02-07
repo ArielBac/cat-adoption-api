@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using CatAdotionApi.Models;
+using CatAdoptionApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace CatAdotionApi.Data
+namespace CatAdoptionApi.Data
 {
     public partial class CatAdoptionContext : DbContext
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace CatAdotionApi.Models
+namespace CatAdoptionApi.Models
 {
     public partial class Cat
     {
