@@ -26,7 +26,7 @@ public class CatController : ControllerBase
 	{
 		_context.Cats.Add(cat);
 		_context.SaveChanges();
-		return CreatedAtAction(nameof(Show), new { id = cat.Id }, cat); // Vai informar pro usuário em qual caminho ele pode encontrar o resurso criado
+		return CreatedAtAction(nameof(Show), new { id = cat.Id }, cat); // Informa ao usuário em qual caminho ele pode encontrar o recurso criado
 	}
 
 	[HttpGet("{id}")]
@@ -55,4 +55,14 @@ public class CatController : ControllerBase
 		_context.SaveChanges();
 		return NoContent();
     }
+
+	[HttpDelete("{id}")]
+	public IActionResult Destroy(int id)
+	{
+		var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
+		if (cat == null) return NotFound();
+		_context.Cats.Remove(cat);
+		_context.SaveChanges();
+		return NoContent();
+	}
 }
