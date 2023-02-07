@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatAdotionApi", "CatAdotionApi\CatAdotionApi.csproj", "{5E8C3272-0361-455B-A34F-7A4A676B4E9C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5E8C3272-0361-455B-A34F-7A4A676B4E9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E8C3272-0361-455B-A34F-7A4A676B4E9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E8C3272-0361-455B-A34F-7A4A676B4E9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E8C3272-0361-455B-A34F-7A4A676B4E9C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {17D3F790-2C01-493D-A30A-D7CC30D67313}
+	EndGlobalSection
+EndGlobal
