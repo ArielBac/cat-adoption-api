@@ -2,6 +2,7 @@
 using CatAdotionApi.Data;
 using CatAdotionApi.Data.Dtos;
 using CatAdotionApi.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CatAdotionApi.Controllers;
@@ -51,6 +52,26 @@ public class CatController : ControllerBase
         var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
 		if (cat == null) return NotFound();
 		_mapper.Map(catDto, cat);
+		_context.SaveChanges();
+		return NoContent();
+    }
+
+	[HttpPatch("{id}")]
+	public IActionResult ParcialUpdate(int id, JsonPatchDocument<UpdateCatDto> patch)
+	{
+        var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
+        if (cat == null) return NotFound();
+		
+		// Verificar se os campos de patch são válidos
+		var catToUpdate = _mapper.Map<UpdateCatDto>(cat);
+		patch.ApplyTo(catToUpdate, ModelState);
+
+		if (!TryValidateModel(catToUpdate))
+		{
+			return ValidationProblem(ModelState);
+		}
+
+		_mapper.Map(catToUpdate, cat);
 		_context.SaveChanges();
 		return NoContent();
     }
