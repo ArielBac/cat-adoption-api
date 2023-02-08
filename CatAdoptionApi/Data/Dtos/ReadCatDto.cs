@@ -2,6 +2,7 @@
 
 public class ReadCatDto
 {
+    public int Id { get; set; }
     public string Name { get; set; } = null!;
     public string? Breed { get; set; }
     public double Weight { get; set; }
