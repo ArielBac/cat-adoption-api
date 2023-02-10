@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using CatAdoptionApi.Models;
+﻿using CatAdoptionApi.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace CatAdoptionApi.Data
 {
