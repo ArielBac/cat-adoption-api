@@ -15,6 +15,7 @@ namespace CatAdoptionApi.Data
         }
 
         public virtual DbSet<Cat> Cats { get; set; } = null!;
+        public virtual DbSet<Vaccine> Vaccines { get; set; } = null!;
 
         //        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //        {
