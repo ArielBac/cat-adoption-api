@@ -29,5 +29,7 @@ namespace CatAdoptionApi.Models
 
         [Required(ErrorMessage = "O campo Gênero é obrigatório")]
         public string Gender { get; set; } = null!;
+
+        public ICollection<Vaccine>? Vaccines { get; set; }
     }
 }
