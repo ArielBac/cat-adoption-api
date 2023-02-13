@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using CatAdoptionApi.Data.Dtos;
+using CatAdoptionApi.Data.Dtos.Cats;
 using CatAdoptionApi.Models;
 
 namespace CatAdoptionApi.Profiles;

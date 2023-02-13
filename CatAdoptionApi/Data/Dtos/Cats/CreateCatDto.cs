@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CatAdoptionApi.Data.Dtos;
+namespace CatAdoptionApi.Data.Dtos.Cats;
 
 public class CreateCatDto
 {

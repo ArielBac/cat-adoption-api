@@ -1,4 +1,4 @@
-﻿namespace CatAdoptionApi.Data.Dtos;
+﻿namespace CatAdoptionApi.Data.Dtos.Cats;
 
 public class ReadCatDto
 {
