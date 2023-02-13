@@ -41,9 +41,6 @@ namespace CatAdoptionApi.Data.Mappings
 
             builder.Property(p => p.Weight)
                 .HasColumnType("double");
-
-            builder.HasMany(p => p.Vaccines)
-                .WithOne();
         }
     }
 }

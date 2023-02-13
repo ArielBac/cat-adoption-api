@@ -16,9 +16,6 @@ namespace CatAdoptionApi.Data.Mappings
 
             builder.HasKey(p => p.Id);
 
-            builder.Property(p => p.CatId)
-                .IsRequired();
-
             builder.Property(p => p.Name)
                 .IsRequired()
                 .HasColumnType("varchar(30)")
@@ -36,7 +33,7 @@ namespace CatAdoptionApi.Data.Mappings
             // Da forma como estão minhas entidades, o enity constrói esse relacionamento por padrão
             // Explicitado para fins de entendimento e aprendizado
             builder.HasOne(p => p.Cat)
-                .WithMany()
+                .WithMany(p => p.Vaccines)
                 .HasForeignKey(p => p.CatId);
         }
     }
