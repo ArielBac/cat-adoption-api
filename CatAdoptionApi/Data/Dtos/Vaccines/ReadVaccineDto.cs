@@ -1,5 +1,4 @@
-﻿using CatAdoptionApi.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using CatAdoptionApi.Data.ViewModels;
 
 namespace CatAdoptionApi.Data.Dtos.Vaccines;
 
@@ -15,6 +14,6 @@ public class ReadVaccineDto
 
     public string Producer { get; set; } = null!;
 
-    public Cat Cat { get; set; }
+    public CatViewModel? Cat { get; set; }
 }
 

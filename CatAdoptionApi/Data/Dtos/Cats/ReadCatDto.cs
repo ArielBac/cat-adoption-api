@@ -1,4 +1,6 @@
-﻿namespace CatAdoptionApi.Data.Dtos.Cats;
+﻿using CatAdoptionApi.Data.ViewModels;
+
+namespace CatAdoptionApi.Data.Dtos.Cats;
 
 public class ReadCatDto
 {
@@ -9,5 +11,7 @@ public class ReadCatDto
     public string Color { get; set; } = null!;
     public int Age { get; set; }
     public string Gender { get; set; } = null!;
+
+    public List<VaccineViewModel>? Vaccines { get; set; }
 }
 
