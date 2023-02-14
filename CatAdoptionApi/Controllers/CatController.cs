@@ -4,6 +4,7 @@ using CatAdoptionApi.Data.Dtos.Cats;
 using CatAdoptionApi.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CatAdoptionApi.Controllers;
 
@@ -30,7 +31,7 @@ public class CatController : ControllerBase
     [ProducesResponseType(typeof(List<ReadCatDto>), StatusCodes.Status200OK)]
     public IEnumerable<ReadCatDto> Index()
     {
-        return _mapper.Map<List<ReadCatDto>>(_context.Cats);
+        return _mapper.Map<List<ReadCatDto>>(_context.Cats.Include(vaccines => vaccines.Vaccines));
     }
 
     /// <summary>
