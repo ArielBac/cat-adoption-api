@@ -21,7 +21,13 @@ public class VaccineController : ControllerBase
         _mapper = mapper;
     }
 
+    /// <summary>
+    /// Recupera todos as vacinas cadastrados
+    /// </summary>
+    /// <returns>IEnumerable</returns>
+    /// <response code="200">Retorna todos os gatinhos cadastrados</response>
     [HttpGet]
+    [ProducesResponseType(typeof(List<ReadVaccineDto>), StatusCodes.Status200OK)]
     public ICollection<ReadVaccineDto> Index()
     {
         return _mapper.Map<List<ReadVaccineDto>>(_context.Vaccines.Include(cat => cat.Cat));
