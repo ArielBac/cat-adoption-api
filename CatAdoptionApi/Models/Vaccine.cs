@@ -22,6 +22,6 @@ namespace CatAdoptionApi.Models
         [StringLength(50, ErrorMessage = "O campo Fabricante não deve exceder 50 caracteres")]
         public string Producer { get; set; } = null!;
 
-        public Cat Cat { get; set; }
+        public Cat? Cat { get; set; }
     }
 }
