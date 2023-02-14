@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using CatAdoptionApi.Data;
+using CatAdoptionApi.Data.Dtos.Cats;
 using CatAdoptionApi.Data.Dtos.Vaccines;
+using CatAdoptionApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
 
 namespace CatAdoptionApi.Controllers;
 
@@ -22,7 +23,7 @@ public class VaccineController : ControllerBase
     }
 
     /// <summary>
-    /// Recupera todos as vacinas cadastrados
+    /// Recupera todas as vacinas que já foram aplicadas
     /// </summary>
     /// <returns>IEnumerable</returns>
     /// <response code="200">Retorna todos os gatinhos cadastrados</response>
@@ -31,5 +32,38 @@ public class VaccineController : ControllerBase
     public ICollection<ReadVaccineDto> Index()
     {
         return _mapper.Map<List<ReadVaccineDto>>(_context.Vaccines.Include(cat => cat.Cat));
+    }
+
+    /// <summary>
+    /// Cria um registro de vacina aplicada a um gatinho
+    /// </summary>
+    /// <param name="vaccineDto"></param>
+    /// <response code="201">Retorna a vacina criada</response>           
+    /// <response code="400">Erro no corpo da requisição</response>                      
+    [HttpPost]
+    [ProducesResponseType(typeof(Vaccine), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult Create([FromBody] CreateVaccineDto vaccineDto)
+    {
+        Vaccine vaccine = _mapper.Map<Vaccine>(vaccineDto);
+        _context.Vaccines.Add(vaccine);
+        _context.SaveChanges();
+        return CreatedAtAction(nameof(Show), new { id = vaccine.Id }, vaccine);
+    }
+
+
+    /// <summary>
+    /// Retorna uma vacina com o gatinho que recebeu ela
+    /// </summary>
+    /// <param name="id"></param>
+    /// <response code="200">Retorna a vacina pesquisado</response>           
+    /// <response code="404">Vacina não encontrada</response>
+    [HttpGet("{id}")]
+    public IActionResult Show(int id)
+    {
+        var vaccine = _context.Vaccines.Include(cat => cat.Cat).FirstOrDefault(vaccine => vaccine.Id == id);
+        if (vaccine == null) return NotFound();
+        var vaccineDto = _mapper.Map<ReadVaccineDto>(vaccine);
+        return Ok(vaccineDto);
     }
 }
