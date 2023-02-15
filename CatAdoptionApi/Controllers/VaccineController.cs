@@ -6,6 +6,7 @@ using CatAdoptionApi.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace CatAdoptionApi.Controllers;
 
@@ -117,6 +118,24 @@ public class VaccineController : ControllerBase
         }
 
         _mapper.Map(vaccineToUpdate, vaccine);
+        _context.SaveChanges();
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Remove uma vacina
+    /// </summary>
+    /// <param name="id"></param>
+    /// <response code="204">Vacina removida com sucesso</response>           
+    /// <response code="404">Vacina não encontrada</response>
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [HttpDelete("{id}")]
+    public IActionResult Destroy(int id) 
+    {
+        var vaccine = _context.Vaccines.FirstOrDefault(vaccine => vaccine.Id == id);
+        if (vaccine == null) return NotFound();
+        _context.Vaccines.Remove(vaccine);
         _context.SaveChanges();
         return NoContent();
     }
