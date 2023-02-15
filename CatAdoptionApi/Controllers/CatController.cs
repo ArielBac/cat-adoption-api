@@ -62,7 +62,7 @@ public class CatController : ControllerBase
     [HttpGet("{id}")]
     public IActionResult Show(int id)
     {
-        var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
+        var cat = _context.Cats.Include(vaccines => vaccines.Vaccines).FirstOrDefault(cat => cat.Id == id);
         if (cat == null) return NotFound();
         var catDto = _mapper.Map<ReadCatDto>(cat);
         return Ok(catDto);
