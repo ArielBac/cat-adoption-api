@@ -28,7 +28,7 @@ public class VaccineController : ControllerBase
     /// <returns>IEnumerable</returns>
     /// <response code="200">Retorna todos os gatinhos cadastrados</response>
     [HttpGet]
-    [ProducesResponseType(typeof(List<ReadVaccineDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ICollection<ReadVaccineDto>), StatusCodes.Status200OK)]
     public ICollection<ReadVaccineDto> Index()
     {
         return _mapper.Map<List<ReadVaccineDto>>(_context.Vaccines.Include(cat => cat.Cat));
@@ -41,7 +41,7 @@ public class VaccineController : ControllerBase
     /// <response code="201">Retorna a vacina criada</response>           
     /// <response code="400">Erro no corpo da requisição</response>                      
     [HttpPost]
-    [ProducesResponseType(typeof(Vaccine), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(IActionResult), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult Create([FromBody] CreateVaccineDto vaccineDto)
     {
@@ -59,11 +59,34 @@ public class VaccineController : ControllerBase
     /// <response code="200">Retorna a vacina pesquisado</response>           
     /// <response code="404">Vacina não encontrada</response>
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult Show(int id)
     {
         var vaccine = _context.Vaccines.Include(cat => cat.Cat).FirstOrDefault(vaccine => vaccine.Id == id);
         if (vaccine == null) return NotFound();
         var vaccineDto = _mapper.Map<ReadVaccineDto>(vaccine);
         return Ok(vaccineDto);
+    }
+
+    /// <summary>
+    /// Atualiza uma vacina
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="vaccineDto"></param>
+    /// <response code="204">Vacina atualizada com sucesso</response>           
+    /// <response code="404">Vacina não encontrado</response>
+    /// <response code="400">Erro no corpo da requisição</response>
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpPut("{id}")]
+    public IActionResult Update(int id, [FromBody] UpdateVaccineDto vaccineDto)
+    {
+        var vaccine = _context.Vaccines.FirstOrDefault(vaccine => vaccine.Id == id);
+        if (vaccine == null) return NotFound();
+        _mapper.Map(vaccineDto, vaccine);
+        _context.SaveChanges();
+        return NoContent();
     }
 }

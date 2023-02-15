@@ -5,9 +5,6 @@ namespace CatAdoptionApi.Data.Dtos.Vaccines;
 
 public class UpdateVaccineDto
 {
-    [Required(ErrorMessage = "O campo ID do Gatinho é obrigatório")]
-    public int CatId { get; set; }
-
     [Required(ErrorMessage = "O campo Data da Aplicação é obrigatório")]
     public DateTime Applicated_at { get; set; }
 
