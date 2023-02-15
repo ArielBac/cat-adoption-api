@@ -26,7 +26,7 @@ namespace CatAdoptionApi.Data.Mappings
                 .HasColumnType("varchar(50)")
                 .HasMaxLength(50);
 
-            builder.Property(p => p.Applicated_at)
+            builder.Property(p => p.Applied_at)
                 .IsRequired()
                 .HasColumnType("datetime");
 

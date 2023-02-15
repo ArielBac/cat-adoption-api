@@ -3,6 +3,7 @@ using System;
 using CatAdoptionApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CatAdoptionApi.Data.Migrations
 {
     [DbContext(typeof(CatAdoptionContext))]
-    partial class CatAdoptionContextModelSnapshot : ModelSnapshot
+    [Migration("20230215125653_AlterVaccineTable")]
+    partial class AlterVaccineTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

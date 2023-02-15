@@ -10,7 +10,7 @@ public class CreateVaccineDto
     public int CatId { get; set; }
 
     [Required(ErrorMessage = "O campo Data da Aplicação é obrigatório")]
-    public DateTime Applicated_at { get; set; }
+    public DateTime Applied_at { get; set; }
 
     [Required(ErrorMessage = "O campo Nome é obrigatório")]
     [StringLength(30, ErrorMessage = "O campo Nome não deve exceder 30 caracteres")]

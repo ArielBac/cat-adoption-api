@@ -6,7 +6,7 @@ public class VaccineViewModel
 
     public int CatId { get; set; }
 
-    public DateTime Applicated_at { get; set; }
+    public DateTime Applied_at { get; set; }
 
     public string Name { get; set; } = null!;
 
