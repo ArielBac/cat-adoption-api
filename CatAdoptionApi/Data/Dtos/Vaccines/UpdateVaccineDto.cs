@@ -1,5 +1,4 @@
-﻿using CatAdoptionApi.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CatAdoptionApi.Data.Dtos.Vaccines;
 
