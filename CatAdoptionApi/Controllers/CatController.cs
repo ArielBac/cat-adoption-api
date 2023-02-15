@@ -15,7 +15,7 @@ public class CatController : ControllerBase
 {
     private CatAdoptionContext _context;
     private IMapper _mapper;
-    private string notFoundErroMessage = "Gatinho não encontrado";
+
     public CatController(CatAdoptionContext context, IMapper mapper)
     {
         _context = context;
@@ -63,7 +63,7 @@ public class CatController : ControllerBase
     public IActionResult Show(int id)
     {
         var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
-        if (cat == null) return NotFound(notFoundErroMessage);
+        if (cat == null) return NotFound();
         var catDto = _mapper.Map<ReadCatDto>(cat);
         return Ok(catDto);
     }
@@ -83,7 +83,7 @@ public class CatController : ControllerBase
     public IActionResult Update(int id, [FromBody] UpdateCatDto catDto)
     {
         var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
-        if (cat == null) return NotFound(notFoundErroMessage);
+        if (cat == null) return NotFound();
         _mapper.Map(catDto, cat);
         _context.SaveChanges();
         return NoContent();
@@ -93,7 +93,7 @@ public class CatController : ControllerBase
     /// Atualiza um gatinho parcialmente
     /// </summary>
     /// <param name="id"></param>
-    /// /// <param name="patch"></param>
+    /// <param name="patch"></param>
     /// <response code="204">Gatinho atualizado com sucesso</response>           
     /// <response code="404">Gatinho não encontrado</response>
     /// <response code="400">Erro no corpo da requisição</response>
@@ -101,10 +101,10 @@ public class CatController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPatch("{id}")]
-    public IActionResult ParcialUpdate(int id, JsonPatchDocument<UpdateCatDto> patch)
+    public IActionResult PartialUpdate(int id, JsonPatchDocument<UpdateCatDto> patch)
     {
         var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
-        if (cat == null) return NotFound(notFoundErroMessage);
+        if (cat == null) return NotFound();
 
         // Verificar se os campos de patch são válidos
         var catToUpdate = _mapper.Map<UpdateCatDto>(cat);
@@ -132,7 +132,7 @@ public class CatController : ControllerBase
     public IActionResult Destroy(int id)
     {
         var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
-        if (cat == null) return NotFound(notFoundErroMessage);
+        if (cat == null) return NotFound();
         _context.Cats.Remove(cat);
         _context.SaveChanges();
         return NoContent();
