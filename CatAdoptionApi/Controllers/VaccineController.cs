@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using CatAdoptionApi.Data;
-using CatAdoptionApi.Data.Dtos.Cats;
 using CatAdoptionApi.Data.Dtos.Vaccines;
 using CatAdoptionApi.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace CatAdoptionApi.Controllers;
 
