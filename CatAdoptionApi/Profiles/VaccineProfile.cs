@@ -13,6 +13,7 @@ namespace CatAdoptionApi.Profiles
             CreateMap<ReadVaccineDto, Vaccine>();
             CreateMap<CreateVaccineDto, Vaccine>();
             CreateMap<UpdateVaccineDto, Vaccine>();
+            CreateMap<Vaccine, UpdateVaccineDto>();
             CreateMap<Vaccine, VaccineViewModel>();
         }
 

@@ -3,6 +3,7 @@ using CatAdoptionApi.Data;
 using CatAdoptionApi.Data.Dtos.Cats;
 using CatAdoptionApi.Data.Dtos.Vaccines;
 using CatAdoptionApi.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -86,6 +87,36 @@ public class VaccineController : ControllerBase
         var vaccine = _context.Vaccines.FirstOrDefault(vaccine => vaccine.Id == id);
         if (vaccine == null) return NotFound();
         _mapper.Map(vaccineDto, vaccine);
+        _context.SaveChanges();
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Atualiza uma vacina parcialmente
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="patch"></param>
+    /// <response code="204">Vacina atualizada com sucesso</response>           
+    /// <response code="404">Vacina não encontrado</response>
+    /// <response code="400">Erro no corpo da requisição</response>
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpPatch("{id}")]
+    public IActionResult PartialUpdate(int id, [FromBody] JsonPatchDocument<UpdateVaccineDto> patch)
+    {
+        var vaccine = _context.Vaccines.FirstOrDefault(vaccine => vaccine.Id == id);
+        if (vaccine == null) return NotFound();
+
+        var vaccineToUpdate = _mapper.Map<UpdateVaccineDto>(vaccine);
+        patch.ApplyTo(vaccineToUpdate, ModelState);
+
+        if (!TryValidateModel(vaccineToUpdate))
+        {
+            return ValidationProblem();
+        }
+
+        _mapper.Map(vaccineToUpdate, vaccine);
         _context.SaveChanges();
         return NoContent();
     }
