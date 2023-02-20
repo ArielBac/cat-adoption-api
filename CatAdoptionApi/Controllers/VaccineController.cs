@@ -25,13 +25,19 @@ public class VaccineController : ControllerBase
     /// <summary>
     /// Recupera todas as vacinas que já foram aplicadas
     /// </summary>
+    /// <param name="skip"></param>
+    /// <param name="take"></param>
     /// <returns>IEnumerable</returns>
     /// <response code="200">Retorna todos os gatinhos cadastrados</response>
     [HttpGet]
     [ProducesResponseType(typeof(ICollection<ReadVaccineDto>), StatusCodes.Status200OK)]
-    public ICollection<ReadVaccineDto> Index()
+    public ICollection<ReadVaccineDto> Index(int skip = 0, int take = 10)
     {
-        return _mapper.Map<List<ReadVaccineDto>>(_context.Vaccines.Include(cat => cat.Cat));
+        return _mapper.Map<List<ReadVaccineDto>>(_context.Vaccines
+            .AsNoTracking()
+            .Skip(skip)
+            .Take(take)
+            .Include(cat => cat.Cat));
     }
 
     /// <summary>
@@ -63,7 +69,7 @@ public class VaccineController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult Show(int id)
     {
-        var vaccine = _context.Vaccines.Include(cat => cat.Cat).FirstOrDefault(vaccine => vaccine.Id == id);
+        var vaccine = _context.Vaccines.AsNoTracking().Include(cat => cat.Cat).FirstOrDefault(vaccine => vaccine.Id == id);
         if (vaccine == null) return NotFound();
         var vaccineDto = _mapper.Map<ReadVaccineDto>(vaccine);
         return Ok(vaccineDto);

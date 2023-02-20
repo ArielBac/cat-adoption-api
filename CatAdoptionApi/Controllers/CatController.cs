@@ -25,13 +25,19 @@ public class CatController : ControllerBase
     /// <summary>
     /// Recupera todos os gatinhos cadastrados
     /// </summary>
+    /// <param name="skip"></param>
+    /// <param name="take"></param>
     /// <returns>IEnumerable</returns>
     /// <response code="200">Retorna todos os gatinhos cadastrados</response>
     [HttpGet]
     [ProducesResponseType(typeof(List<ReadCatDto>), StatusCodes.Status200OK)]
-    public IEnumerable<ReadCatDto> Index()
+    public IEnumerable<ReadCatDto> Index(int skip = 0, int take = 10)
     {
-        return _mapper.Map<List<ReadCatDto>>(_context.Cats.Include(vaccines => vaccines.Vaccines));
+        return _mapper.Map<List<ReadCatDto>>(_context.Cats
+            .AsNoTracking()
+            .Skip(skip)
+            .Take(take)
+            .Include(vaccines => vaccines.Vaccines));
     }
 
     /// <summary>
@@ -62,7 +68,7 @@ public class CatController : ControllerBase
     [HttpGet("{id}")]
     public IActionResult Show(int id)
     {
-        var cat = _context.Cats.Include(vaccines => vaccines.Vaccines).FirstOrDefault(cat => cat.Id == id);
+        var cat = _context.Cats.AsNoTracking().Include(vaccines => vaccines.Vaccines).FirstOrDefault(cat => cat.Id == id);
         if (cat == null) return NotFound();
         var catDto = _mapper.Map<ReadCatDto>(cat);
         return Ok(catDto);
