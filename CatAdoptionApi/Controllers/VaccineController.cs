@@ -31,7 +31,7 @@ public class VaccineController : ControllerBase
     [ProducesResponseType(typeof(ICollection<ReadVaccineDto>), StatusCodes.Status200OK)]
     public ICollection<ReadVaccineDto> Index()
     {
-        return _mapper.Map<List<ReadVaccineDto>>(_context.Vaccines.Include(cat => cat.Cat));
+        return _mapper.Map<List<ReadVaccineDto>>(_context.Vaccines.AsNoTracking().Include(cat => cat.Cat));
     }
 
     /// <summary>
@@ -63,7 +63,7 @@ public class VaccineController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult Show(int id)
     {
-        var vaccine = _context.Vaccines.Include(cat => cat.Cat).FirstOrDefault(vaccine => vaccine.Id == id);
+        var vaccine = _context.Vaccines.AsNoTracking().Include(cat => cat.Cat).FirstOrDefault(vaccine => vaccine.Id == id);
         if (vaccine == null) return NotFound();
         var vaccineDto = _mapper.Map<ReadVaccineDto>(vaccine);
         return Ok(vaccineDto);
