@@ -46,6 +46,8 @@ builder.Services.AddSwaggerGen(options =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     Console.WriteLine(xmlPath);
     options.IncludeXmlComments(xmlPath);
+
+    options.EnableAnnotations();
 });
 
 // Services cors
