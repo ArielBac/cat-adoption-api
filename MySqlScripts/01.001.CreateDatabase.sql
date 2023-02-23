@@ -1,3 +1,3 @@
 #MySQL
 
-CREATE DATABASE cat_adoption_db;
+CREATE DATABASE IF NOT EXISTS cat_adoption_db;
