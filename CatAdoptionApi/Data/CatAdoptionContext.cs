@@ -8,11 +8,13 @@ public partial class CatAdoptionContext : DbContext
 {
     public CatAdoptionContext()
     {
+        ChangeTracker.LazyLoadingEnabled = false;
     }
 
     public CatAdoptionContext(DbContextOptions<CatAdoptionContext> options)
         : base(options)
     {
+        ChangeTracker.LazyLoadingEnabled = false;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
