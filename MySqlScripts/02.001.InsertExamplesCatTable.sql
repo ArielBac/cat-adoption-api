@@ -7,6 +7,9 @@ DROP PROCEDURE IF EXISTS InsertCatIfNotExistsProcedure;
 DELIMITER $$
 CREATE PROCEDURE InsertCatIfNotExistsProcedure (IN NameParam VARCHAR(30), BreedParam VARCHAR(30), WeightParam DOUBLE, ColorParam VARCHAR(30), AgeParam INT, GenderParam CHAR(1))
 BEGIN
+DECLARE erro_sql TINYINT DEFAULT FALSE;
+DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET erro_sql = TRUE;
+START TRANSACTION;
 	SET @hasCat = (SELECT count(*) FROM cats WHERE (
 		Name = NameParam AND 
         Breed = BreedParam AND 
@@ -22,6 +25,14 @@ BEGIN
 		INSERT INTO cats (Name, Breed, Weight, Color, Age, Gender)
 		VALUES(NameParam, BreedParam, WeightParam, ColorParam, AgeParam, GenderParam);
     END IF;
+    
+	IF erro_sql = FALSE THEN
+		COMMIT;
+		SELECT 'Transação efetivada com sucesso.' AS Resultado;
+	ELSE
+		ROLLBACK;
+		SELECT 'Erro na transação' AS Resultado;
+	END IF;
 END $$
 DELIMITER ;
 
