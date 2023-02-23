@@ -1,4 +1,4 @@
-﻿namespace CatAdoptionApi.Data.ViewModels;
+﻿namespace CatAdoptionApi.ViewModels;
 
 public class CatViewModel
 {

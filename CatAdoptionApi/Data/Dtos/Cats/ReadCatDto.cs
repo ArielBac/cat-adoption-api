@@ -1,4 +1,4 @@
-﻿using CatAdoptionApi.Data.ViewModels;
+﻿using CatAdoptionApi.ViewModels;
 
 namespace CatAdoptionApi.Data.Dtos.Cats;
 

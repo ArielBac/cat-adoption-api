@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CatAdoptionApi.Data.Dtos.Vaccines;
-using CatAdoptionApi.Data.ViewModels;
 using CatAdoptionApi.Models;
+using CatAdoptionApi.ViewModels;
 
 namespace CatAdoptionApi.Profiles;
 
