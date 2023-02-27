@@ -33,11 +33,18 @@ public class VaccineController : ControllerBase
     [ProducesResponseType(typeof(ICollection<ReadVaccineDto>), StatusCodes.Status200OK)]
     public ICollection<ReadVaccineDto> Index(int skip = 0, int take = 10)
     {
-        return _mapper.Map<List<ReadVaccineDto>>(_context.Vaccines
-            .AsNoTracking()
-            .Skip(skip)
-            .Take(take)
-            .Include(cat => cat.Cat));
+        try
+        {
+            return _mapper.Map<List<ReadVaccineDto>>(_context.Vaccines
+                           .AsNoTracking()
+                           .Skip(skip)
+                           .Take(take)
+                           .Include(cat => cat.Cat));
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     /// <summary>
@@ -45,16 +52,25 @@ public class VaccineController : ControllerBase
     /// </summary>
     /// <param name="vaccineDto"></param>
     /// <response code="201">Retorna a vacina criada</response>           
-    /// <response code="400">Erro no corpo da requisição</response>                      
+    /// <response code="400">Erro na requisição</response>                      
     [HttpPost]
     [ProducesResponseType(typeof(IActionResult), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult Create([FromBody] CreateVaccineDto vaccineDto)
     {
-        Vaccine vaccine = _mapper.Map<Vaccine>(vaccineDto);
-        _context.Vaccines.Add(vaccine);
-        _context.SaveChanges();
-        return CreatedAtAction(nameof(Show), new { id = vaccine.Id }, vaccine);
+        try
+        {
+            Vaccine vaccine = _mapper.Map<Vaccine>(vaccineDto);
+
+            _context.Vaccines.Add(vaccine);
+            _context.SaveChanges();
+
+            return CreatedAtAction(nameof(Show), new { id = vaccine.Id }, vaccine);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
 
@@ -64,15 +80,31 @@ public class VaccineController : ControllerBase
     /// <param name="id"></param>
     /// <response code="200">Retorna a vacina pesquisado</response>           
     /// <response code="404">Vacina não encontrada</response>
+    /// <response code="400">Erro na requisição</response>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult Show(int id)
     {
-        var vaccine = _context.Vaccines.AsNoTracking().Include(cat => cat.Cat).FirstOrDefault(vaccine => vaccine.Id == id);
-        if (vaccine == null) return NotFound();
-        var vaccineDto = _mapper.Map<ReadVaccineDto>(vaccine);
-        return Ok(vaccineDto);
+        try
+        {
+            var vaccine = _context.Vaccines
+                .AsNoTracking()
+                .Include(cat => cat.Cat)
+                .FirstOrDefault(vaccine => vaccine.Id == id);
+            
+            if (vaccine == null) 
+                return NotFound();
+
+            var vaccineDto = _mapper.Map<ReadVaccineDto>(vaccine);
+           
+            return Ok(vaccineDto);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>
@@ -82,18 +114,30 @@ public class VaccineController : ControllerBase
     /// <param name="vaccineDto"></param>
     /// <response code="204">Vacina atualizada com sucesso</response>           
     /// <response code="404">Vacina não encontrado</response>
-    /// <response code="400">Erro no corpo da requisição</response>
+    /// <response code="400">Erro na requisição</response>
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPut("{id}")]
     public IActionResult Update(int id, [FromBody] UpdateVaccineDto vaccineDto)
     {
-        var vaccine = _context.Vaccines.FirstOrDefault(vaccine => vaccine.Id == id);
-        if (vaccine == null) return NotFound();
-        _mapper.Map(vaccineDto, vaccine);
-        _context.SaveChanges();
-        return NoContent();
+        try
+        {
+            var vaccine = _context.Vaccines
+                .FirstOrDefault(vaccine => vaccine.Id == id);
+
+            if (vaccine == null) 
+                return NotFound();
+
+            _mapper.Map(vaccineDto, vaccine);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>
@@ -103,27 +147,39 @@ public class VaccineController : ControllerBase
     /// <param name="patch"></param>
     /// <response code="204">Vacina atualizada com sucesso</response>           
     /// <response code="404">Vacina não encontrado</response>
-    /// <response code="400">Erro no corpo da requisição</response>
+    /// <response code="400">Erro na requisição</response>
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPatch("{id}")]
     public IActionResult PartialUpdate(int id, [FromBody] JsonPatchDocument<UpdateVaccineDto> patch)
     {
-        var vaccine = _context.Vaccines.FirstOrDefault(vaccine => vaccine.Id == id);
-        if (vaccine == null) return NotFound();
-
-        var vaccineToUpdate = _mapper.Map<UpdateVaccineDto>(vaccine);
-        patch.ApplyTo(vaccineToUpdate, ModelState);
-
-        if (!TryValidateModel(vaccineToUpdate))
+        try
         {
-            return ValidationProblem();
-        }
+            var vaccine = _context.Vaccines
+                .FirstOrDefault(vaccine => vaccine.Id == id);
 
-        _mapper.Map(vaccineToUpdate, vaccine);
-        _context.SaveChanges();
-        return NoContent();
+            if (vaccine == null) 
+                return NotFound();
+
+            var vaccineToUpdate = _mapper.Map<UpdateVaccineDto>(vaccine);
+            patch.ApplyTo(vaccineToUpdate, ModelState);
+
+            if (!TryValidateModel(vaccineToUpdate))
+            {
+                return ValidationProblem();
+            }
+
+            _mapper.Map(vaccineToUpdate, vaccine);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+       
     }
 
     /// <summary>
@@ -132,15 +188,30 @@ public class VaccineController : ControllerBase
     /// <param name="id"></param>
     /// <response code="204">Vacina removida com sucesso</response>           
     /// <response code="404">Vacina não encontrada</response>
+    /// <response code="400">Erro na requisição</response>
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpDelete("{id}")]
     public IActionResult Destroy(int id) 
     {
-        var vaccine = _context.Vaccines.FirstOrDefault(vaccine => vaccine.Id == id);
-        if (vaccine == null) return NotFound();
-        _context.Vaccines.Remove(vaccine);
-        _context.SaveChanges();
-        return NoContent();
+        try
+        {
+            var vaccine = _context.Vaccines
+                .FirstOrDefault(vaccine => vaccine.Id == id);
+
+            if (vaccine == null) 
+                return NotFound();
+            
+            _context.Vaccines.Remove(vaccine);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+       
     }
 }
