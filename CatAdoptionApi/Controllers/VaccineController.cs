@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using CatAdoptionApi.Data;
+using CatAdoptionApi.Data.Dtos.Cats;
 using CatAdoptionApi.Data.Dtos.Vaccines;
 using CatAdoptionApi.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace CatAdoptionApi.Controllers;
 
@@ -22,16 +24,16 @@ public class VaccineController : ControllerBase
         _mapper = mapper;
     }
 
-    /// <summary>
-    /// Recupera todas as vacinas que já foram aplicadas
-    /// </summary>
-    /// <param name="skip"></param>
-    /// <param name="take"></param>
-    /// <returns>IEnumerable</returns>
-    /// <response code="200">Retorna todos os gatinhos cadastrados</response>
+    [SwaggerOperation(
+       Summary = "Recupera todas as vacinas cadastrados",
+       Description = "Retorna todos os registros da tabela de vacinas do banco de dados"
+    )]
+    [SwaggerResponse(200, "Lista de vacinas retornada com sucesso", typeof(IEnumerable<ReadVaccineDto>))]
     [HttpGet]
-    [ProducesResponseType(typeof(ICollection<ReadVaccineDto>), StatusCodes.Status200OK)]
-    public ICollection<ReadVaccineDto> Index(int skip = 0, int take = 10)
+    public ICollection<ReadVaccineDto> Index(
+        [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] int skip = 0,
+        [FromQuery, SwaggerParameter("Número de registros retornados", Required = false)] int take = 10
+    )
     {
         try
         {
@@ -47,16 +49,16 @@ public class VaccineController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Cria um registro de vacina aplicada a um gatinho
-    /// </summary>
-    /// <param name="vaccineDto"></param>
-    /// <response code="201">Retorna a vacina criada</response>           
-    /// <response code="400">Erro na requisição</response>                      
+    [SwaggerOperation(
+       Summary = "Cadastra uma vacina aplicada a um gatinho",
+       Description = "Insere um registro na tabela de vacinas no banco de dados"
+    )]
+    [SwaggerResponse(201, "Vacina cadastrada com sucesso", typeof(ReadVaccineDto))]
+    [SwaggerResponse(400, "Erro na requisição")]           
     [HttpPost]
-    [ProducesResponseType(typeof(ReadVaccineDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult Create([FromBody] CreateVaccineDto vaccineDto)
+    public IActionResult Create(
+        [FromBody, SwaggerParameter("Dados para o cadastro de uma vacina", Required = true)] CreateVaccineDto vaccineDto
+    )
     {
         try
         {
@@ -73,19 +75,17 @@ public class VaccineController : ControllerBase
         }
     }
 
-
-    /// <summary>
-    /// Retorna uma vacina com o gatinho que recebeu ela
-    /// </summary>
-    /// <param name="id"></param>
-    /// <response code="200">Retorna a vacina pesquisado</response>           
-    /// <response code="404">Vacina não encontrada</response>
-    /// <response code="400">Erro na requisição</response>
-    [HttpGet("{id}")]
-    [ProducesResponseType(typeof(ReadVaccineDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult Show(int id)
+    [SwaggerOperation(
+        Summary = "Recupera uma vacina",
+        Description = "Retorna um registro da tabela de vacinas no banco de dados, por id"
+    )]
+    [SwaggerResponse(200, "Vacina retornada com sucesso", typeof(ReadVaccineDto))]
+    [SwaggerResponse(400, "Erro na requisição")]
+    [SwaggerResponse(404, "Vacina não encontrada")]
+    [HttpGet("{id:int}")]
+    public IActionResult Show(
+        [SwaggerParameter("Id da vacina a ser retornada", Required = true)] int id
+    )
     {
         try
         {
@@ -107,19 +107,18 @@ public class VaccineController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Atualiza uma vacina
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="vaccineDto"></param>
-    /// <response code="204">Vacina atualizada com sucesso</response>           
-    /// <response code="404">Vacina não encontrado</response>
-    /// <response code="400">Erro na requisição</response>
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [HttpPut("{id}")]
-    public IActionResult Update(int id, [FromBody] UpdateVaccineDto vaccineDto)
+    [SwaggerOperation(
+        Summary = "Atualiza uma vacina",
+        Description = "Atualiza um registro da tabela de vacinas no banco de dados, por id"
+    )]
+    [SwaggerResponse(204, "Vacina atualizada com sucesso")]
+    [SwaggerResponse(400, "Erro na requisição")]
+    [SwaggerResponse(404, "Vacina não encontrada")]
+    [HttpPut("{id:int}")]
+    public IActionResult Update(
+        [SwaggerParameter("Id da vacina a ser atualizada", Required = true)] int id,
+        [FromBody, SwaggerParameter("Dados para a atualização de uma vacina", Required = true)] UpdateVaccineDto vaccineDto
+    )
     {
         try
         {
@@ -140,19 +139,18 @@ public class VaccineController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Atualiza uma vacina parcialmente
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="patch"></param>
-    /// <response code="204">Vacina atualizada com sucesso</response>           
-    /// <response code="404">Vacina não encontrado</response>
-    /// <response code="400">Erro na requisição</response>
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [HttpPatch("{id}")]
-    public IActionResult PartialUpdate(int id, [FromBody] JsonPatchDocument<UpdateVaccineDto> patch)
+    [SwaggerOperation(
+      Summary = "Atualiza uma vacina parcialmente",
+      Description = "Atualiza um registro da tabela de vacinas no banco de dados, parcialmente, por id"
+    )]
+    [SwaggerResponse(204, "Vacina atualizada com sucesso")]
+    [SwaggerResponse(400, "Erro na requisição")]
+    [SwaggerResponse(404, "Vacina não encontrada")]
+    [HttpPatch("{id:int}")]
+    public IActionResult PartialUpdate(
+        [SwaggerParameter("Id da vacina a ser atualizada", Required = true)] int id,
+        [FromBody, SwaggerParameter("Dados para a atualização de uma vacina")] JsonPatchDocument<UpdateVaccineDto> patch
+    )
     {
         try
         {
@@ -182,18 +180,17 @@ public class VaccineController : ControllerBase
        
     }
 
-    /// <summary>
-    /// Remove uma vacina
-    /// </summary>
-    /// <param name="id"></param>
-    /// <response code="204">Vacina removida com sucesso</response>           
-    /// <response code="404">Vacina não encontrada</response>
-    /// <response code="400">Erro na requisição</response>
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [HttpDelete("{id}")]
-    public IActionResult Destroy(int id) 
+    [SwaggerOperation(
+       Summary = "Remove uma vacina",
+       Description = "Remove um registro da tabela de vacinas no banco de dados, por id"
+    )]
+    [SwaggerResponse(204, "Vacina removida com sucesso")]
+    [SwaggerResponse(400, "Erro na requisição")]
+    [SwaggerResponse(404, "Vacina não encontrada")]
+    [HttpDelete("{id:int}")]
+    public IActionResult Destroy(
+        [SwaggerParameter("Id da vacina a ser removida", Required = true)] int id
+    ) 
     {
         try
         {

@@ -2,9 +2,12 @@
 using CatAdoptionApi.Data;
 using CatAdoptionApi.Data.Dtos.Cats;
 using CatAdoptionApi.Models;
+using CatAdoptionApi.ViewModels;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace CatAdoptionApi.Controllers;
 
@@ -22,16 +25,16 @@ public class CatController : ControllerBase
         _mapper = mapper;
     }
 
-    /// <summary>
-    /// Recupera todos os gatinhos cadastrados
-    /// </summary>
-    /// <param name="skip"></param>
-    /// <param name="take"></param>
-    /// <returns>IEnumerable</returns>
-    /// <response code="200">Retorna todos os gatinhos cadastrados</response>
+    [SwaggerOperation(
+        Summary = "Recupera todos os gatinhos cadastrados",
+        Description = "Retorna todos os registros da tabela de gatos do banco de dados"
+    )]
+    [SwaggerResponse(200, "Lista de gatinhos retornada com sucesso", typeof(IEnumerable<ReadCatDto>))]
     [HttpGet]
-    [ProducesResponseType(typeof(List<ReadCatDto>), StatusCodes.Status200OK)]
-    public IEnumerable<ReadCatDto> Index(int skip = 0, int take = 10)
+    public IEnumerable<ReadCatDto> Index(
+        [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] int skip = 0, 
+        [FromQuery, SwaggerParameter("Número de registros retornados", Required = false)] int take = 10
+    )
     {
         try
         {
@@ -47,16 +50,16 @@ public class CatController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Cria um gatinho
-    /// </summary>
-    /// <param name="catDto"></param>
-    /// <response code="201">Retorna o gatinho criado</response>           
-    /// <response code="400">Erro na requisição</response>                      
+    [SwaggerOperation(
+        Summary = "Cadastra um gatinho",
+        Description = "Insere um registro na tabela de gatos no banco de dados"
+    )]
+    [SwaggerResponse(201, "Gatinho cadastrado com sucesso", typeof(ReadCatDto))]
+    [SwaggerResponse(400, "Erro na requisição")]
     [HttpPost]
-    [ProducesResponseType(typeof(ReadCatDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult Create([FromBody] CreateCatDto catDto)
+    public IActionResult Create(
+        [FromBody, SwaggerParameter("Dados para o cadastro de um gatinho", Required = true)] CreateCatDto catDto
+    )
     {
         try
         {
@@ -74,18 +77,17 @@ public class CatController : ControllerBase
        
     }
 
-    /// <summary>
-    /// Retorna um gatinho
-    /// </summary>
-    /// <param name="id"></param>
-    /// <response code="200">Retorna o gatinho pesquisado</response>           
-    /// <response code="404">Gatinho não encontrado</response>
-    /// <response code="400">Erro na requisição</response>
-    [ProducesResponseType(typeof(ReadCatDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [HttpGet("{id}")]
-    public IActionResult Show(int id)
+    [SwaggerOperation(
+        Summary = "Recupera um gatinho",
+        Description = "Retorna um registro da tabela de gatos no banco de dados, por id"
+    )]
+    [SwaggerResponse(200, "Gatinho retornado com sucesso", typeof(ReadCatDto))]
+    [SwaggerResponse(400, "Erro na requisição")]
+    [SwaggerResponse(404, "Gatinho não encontrado")]
+    [HttpGet("{id:int}")]
+    public IActionResult Show(
+        [SwaggerParameter("Id do gatinhos a ser retornado", Required  = true)] int id
+    )
     {
         try
         {
@@ -108,19 +110,18 @@ public class CatController : ControllerBase
        
     }
 
-    /// <summary>
-    /// Atualiza um gatinho
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="catDto"></param>
-    /// <response code="204">Gatinho atualizado com sucesso</response>           
-    /// <response code="404">Gatinho não encontrado</response>
-    /// <response code="400">Erro na requisição</response>
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [HttpPut("{id}")]
-    public IActionResult Update(int id, [FromBody] UpdateCatDto catDto)
+    [SwaggerOperation(
+        Summary = "Atualiza um gatinho",
+        Description = "Atualiza um registro da tabela de gatos no banco de dados, por id"
+    )]
+    [SwaggerResponse(204, "Gatinho atualizado com sucesso")]
+    [SwaggerResponse(400, "Erro na requisição")]
+    [SwaggerResponse(404, "Gatinho não encontrado")]
+    [HttpPut("{id:int}")]
+    public IActionResult Update(
+        [SwaggerParameter("Id do gatinho a ser atualizado", Required = true)] int id, 
+        [FromBody, SwaggerParameter("Dados para a atualização de um gatinho", Required = true)] UpdateCatDto catDto
+    )
     {
         try
         {
@@ -142,19 +143,17 @@ public class CatController : ControllerBase
        
     }
 
-    /// <summary>
-    /// Atualiza um gatinho parcialmente
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="patch"></param>
-    /// <response code="204">Gatinho atualizado com sucesso</response>           
-    /// <response code="404">Gatinho não encontrado</response>
-    /// <response code="400">Erro na requisição</response>
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [HttpPatch("{id}")]
-    public IActionResult PartialUpdate(int id, JsonPatchDocument<UpdateCatDto> patch)
+    [SwaggerOperation(
+       Summary = "Atualiza um gatinho parcialmente",
+       Description = "Atualiza um registro da tabela de gatos no banco de dados, parcialmente, por id"
+    )]
+    [SwaggerResponse(204, "Gatinho atualizado com sucesso")]
+    [SwaggerResponse(400, "Erro na requisição")]
+    [SwaggerResponse(404, "Gatinho não encontrado")]
+    [HttpPatch("{id:int}")]
+    public IActionResult PartialUpdate(
+        [SwaggerParameter("Id do gatinho a ser atualizado", Required = true)] int id, 
+        [FromBody, SwaggerParameter("Dados para a atualização de um gatinho")] JsonPatchDocument<UpdateCatDto> patch)
     {
         try
         {
@@ -183,18 +182,17 @@ public class CatController : ControllerBase
         
     }
 
-    /// <summary>
-    /// Remove um gatinho
-    /// </summary>
-    /// <param name="id"></param>
-    /// <response code="204">Gatinho removido com sucesso</response>           
-    /// <response code="404">Gatinho não encontrado</response>
-    /// <response code="400">Erro na requisição</response>
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [HttpDelete("{id}")]
-    public IActionResult Destroy(int id)
+    [SwaggerOperation(
+       Summary = "Remove um gatinho",
+       Description = "Remove um registro da tabela de gatos no banco de dados, por id"
+    )]
+    [SwaggerResponse(204, "Gatinho removido com sucesso")]
+    [SwaggerResponse(400, "Erro na requisição")]
+    [SwaggerResponse(404, "Gatinho não encontrado")]
+    [HttpDelete("{id:int}")]
+    public IActionResult Destroy(
+        [SwaggerParameter("Id do gatinho a ser removido", Required = true)] int id
+    )
     {
         try
         {
