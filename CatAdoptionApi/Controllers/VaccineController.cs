@@ -54,7 +54,7 @@ public class VaccineController : ControllerBase
     /// <response code="201">Retorna a vacina criada</response>           
     /// <response code="400">Erro na requisição</response>                      
     [HttpPost]
-    [ProducesResponseType(typeof(IActionResult), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ReadVaccineDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult Create([FromBody] CreateVaccineDto vaccineDto)
     {
@@ -82,7 +82,7 @@ public class VaccineController : ControllerBase
     /// <response code="404">Vacina não encontrada</response>
     /// <response code="400">Erro na requisição</response>
     [HttpGet("{id}")]
-    [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ReadVaccineDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult Show(int id)

@@ -54,7 +54,7 @@ public class CatController : ControllerBase
     /// <response code="201">Retorna o gatinho criado</response>           
     /// <response code="400">Erro na requisição</response>                      
     [HttpPost]
-    [ProducesResponseType(typeof(Cat), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ReadCatDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult Create([FromBody] CreateCatDto catDto)
     {
