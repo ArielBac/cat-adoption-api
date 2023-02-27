@@ -33,11 +33,18 @@ public class CatController : ControllerBase
     [ProducesResponseType(typeof(List<ReadCatDto>), StatusCodes.Status200OK)]
     public IEnumerable<ReadCatDto> Index(int skip = 0, int take = 10)
     {
-        return _mapper.Map<List<ReadCatDto>>(_context.Cats
-            .AsNoTracking()
-            .Skip(skip)
-            .Take(take)
-            .Include(vaccines => vaccines.Vaccines));
+        try
+        {
+            return _mapper.Map<List<ReadCatDto>>(_context.Cats
+                            .AsNoTracking()
+                            .Skip(skip)
+                            .Take(take)
+                            .Include(vaccines => vaccines.Vaccines));
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     /// <summary>
@@ -45,16 +52,26 @@ public class CatController : ControllerBase
     /// </summary>
     /// <param name="catDto"></param>
     /// <response code="201">Retorna o gatinho criado</response>           
-    /// <response code="400">Erro no corpo da requisição</response>                      
+    /// <response code="400">Erro na requisição</response>                      
     [HttpPost]
-    [ProducesResponseType(typeof(Cat), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ReadCatDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult Create([FromBody] CreateCatDto catDto)
     {
-        Cat cat = _mapper.Map<Cat>(catDto);
-        _context.Cats.Add(cat);
-        _context.SaveChanges();
-        return CreatedAtAction(nameof(Show), new { id = cat.Id }, cat); // Informa ao usuário em qual caminho ele pode encontrar o recurso criado
+        try
+        {
+            Cat cat = _mapper.Map<Cat>(catDto);
+
+            _context.Cats.Add(cat);
+            _context.SaveChanges();
+
+            return CreatedAtAction(nameof(Show), new { id = cat.Id }, cat); // Informa ao usuário em qual caminho ele pode encontrar o recurso criado
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+       
     }
 
     /// <summary>
@@ -63,15 +80,32 @@ public class CatController : ControllerBase
     /// <param name="id"></param>
     /// <response code="200">Retorna o gatinho pesquisado</response>           
     /// <response code="404">Gatinho não encontrado</response>
+    /// <response code="400">Erro na requisição</response>
     [ProducesResponseType(typeof(ReadCatDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpGet("{id}")]
     public IActionResult Show(int id)
     {
-        var cat = _context.Cats.AsNoTracking().Include(vaccines => vaccines.Vaccines).FirstOrDefault(cat => cat.Id == id);
-        if (cat == null) return NotFound();
-        var catDto = _mapper.Map<ReadCatDto>(cat);
-        return Ok(catDto);
+        try
+        {
+            var cat = _context.Cats
+                .AsNoTracking()
+                .Include(vaccines => vaccines.Vaccines)
+                .FirstOrDefault(cat => cat.Id == id);
+
+            if (cat == null) 
+                return NotFound();
+
+            var catDto = _mapper.Map<ReadCatDto>(cat);
+
+            return Ok(catDto);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+       
     }
 
     /// <summary>
@@ -81,18 +115,31 @@ public class CatController : ControllerBase
     /// <param name="catDto"></param>
     /// <response code="204">Gatinho atualizado com sucesso</response>           
     /// <response code="404">Gatinho não encontrado</response>
-    /// <response code="400">Erro no corpo da requisição</response>
+    /// <response code="400">Erro na requisição</response>
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPut("{id}")]
     public IActionResult Update(int id, [FromBody] UpdateCatDto catDto)
     {
-        var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
-        if (cat == null) return NotFound();
-        _mapper.Map(catDto, cat);
-        _context.SaveChanges();
-        return NoContent();
+        try
+        {
+            var cat = _context.Cats
+                .FirstOrDefault(cat => cat.Id == id);
+
+            if (cat == null) 
+                return NotFound();
+
+            _mapper.Map(catDto, cat);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+       
     }
 
     /// <summary>
@@ -102,28 +149,38 @@ public class CatController : ControllerBase
     /// <param name="patch"></param>
     /// <response code="204">Gatinho atualizado com sucesso</response>           
     /// <response code="404">Gatinho não encontrado</response>
-    /// <response code="400">Erro no corpo da requisição</response>
+    /// <response code="400">Erro na requisição</response>
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPatch("{id}")]
     public IActionResult PartialUpdate(int id, JsonPatchDocument<UpdateCatDto> patch)
     {
-        var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
-        if (cat == null) return NotFound();
-
-        // Verificar se os campos de patch são válidos
-        var catToUpdate = _mapper.Map<UpdateCatDto>(cat);
-        patch.ApplyTo(catToUpdate, ModelState);
-
-        if (!TryValidateModel(catToUpdate))
+        try
         {
-            return ValidationProblem(ModelState);
-        }
+            var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
+            if (cat == null) 
+                return NotFound();
 
-        _mapper.Map(catToUpdate, cat);
-        _context.SaveChanges();
-        return NoContent();
+            // Verificar se os campos de patch são válidos
+            var catToUpdate = _mapper.Map<UpdateCatDto>(cat);
+            patch.ApplyTo(catToUpdate, ModelState);
+
+            if (!TryValidateModel(catToUpdate))
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            _mapper.Map(catToUpdate, cat);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        
     }
 
     /// <summary>
@@ -132,15 +189,30 @@ public class CatController : ControllerBase
     /// <param name="id"></param>
     /// <response code="204">Gatinho removido com sucesso</response>           
     /// <response code="404">Gatinho não encontrado</response>
+    /// <response code="400">Erro na requisição</response>
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpDelete("{id}")]
     public IActionResult Destroy(int id)
     {
-        var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
-        if (cat == null) return NotFound();
-        _context.Cats.Remove(cat);
-        _context.SaveChanges();
-        return NoContent();
+        try
+        {
+            var cat = _context.Cats
+                .FirstOrDefault(cat => cat.Id == id);
+            
+            if (cat == null) 
+                return NotFound();
+            
+            _context.Cats.Remove(cat);
+            _context.SaveChanges();
+            
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        
     }
 }
