@@ -80,7 +80,7 @@ public class CatController : ControllerBase
     /// <param name="id"></param>
     /// <response code="200">Retorna o gatinho pesquisado</response>           
     /// <response code="404">Gatinho não encontrado</response>
-    /// /// <response code="400">Erro na requisição</response>
+    /// <response code="400">Erro na requisição</response>
     [ProducesResponseType(typeof(ReadCatDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -192,6 +192,7 @@ public class CatController : ControllerBase
     /// <response code="400">Erro na requisição</response>
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpDelete("{id}")]
     public IActionResult Destroy(int id)
     {
