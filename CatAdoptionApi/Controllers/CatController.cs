@@ -159,7 +159,7 @@ public class CatController : ControllerBase
         try
         {
             var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
-            if (cat == null) 
+            if (cat == null)
                 return NotFound();
 
             // Verificar se os campos de patch são válidos

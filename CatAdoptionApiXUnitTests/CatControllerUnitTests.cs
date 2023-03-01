@@ -266,7 +266,25 @@ namespace CatAdoptionApiXUnitTests
         }
 
         // ============================================ PartialUpdate action ========================================
-   
+        //[Fact]
+        //public void PartialUpdate_Return_NoContentResult()
+        //{
+        //    // Arrange
+        //    var controller = new CatController(_context, _mapper);
+        //    var catId = 2;
+        //    JsonPatchDocument<UpdateCatDto> patch = new JsonPatchDocument<UpdateCatDto>();
+        //    patch.Replace(cat => cat.Name, "Joana parcialmente atualizada");
+        //    patch.Replace(cat => cat.Color, "Amarelo");
+
+        //    // Act
+        //    var data = controller.PartialUpdate(catId, patch);
+
+        //    var cats = _context.Cats;
+
+        //    // Assert
+        //    Assert.IsType<NoContentResult>(data);
+        //}
+
         // ============================================ Destroy action ==============================================
         [Fact]
         public void Destroy_Return_NoContentResult()
