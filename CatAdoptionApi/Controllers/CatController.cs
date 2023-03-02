@@ -55,7 +55,7 @@ public class CatController : ControllerBase
         Summary = "Cadastra um gatinho",
         Description = "Insere um registro na tabela de gatos no banco de dados"
     )]
-    [SwaggerResponse(201, "Gatinho cadastrado com sucesso", typeof(ActionResult<ReadCatDto>))]
+    [SwaggerResponse(201, "Gatinho cadastrado com sucesso", typeof(ReadCatDto))]
     [SwaggerResponse(400, "Erro na requisição")]
     [HttpPost]
     public ActionResult Create(
