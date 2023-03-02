@@ -30,8 +30,9 @@ public class CatController : ControllerBase
         Description = "Retorna todos os registros da tabela de gatos do banco de dados"
     )]
     [SwaggerResponse(200, "Lista de gatinhos retornada com sucesso", typeof(IEnumerable<ReadCatDto>))]
+    [SwaggerResponse(400, "Erro inesperado")]
     [HttpGet]
-    public IEnumerable<ReadCatDto> Index(
+    public ActionResult<IEnumerable<ReadCatDto>> Index(
         [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] int skip = 0, 
         [FromQuery, SwaggerParameter("Número de registros retornados", Required = false)] int take = 10
     )
@@ -44,9 +45,9 @@ public class CatController : ControllerBase
                             .Take(take)
                             .Include(vaccines => vaccines.Vaccines));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            throw new Exception(ex.Message);
+            return BadRequest("Um erro inesperado ocorreu");
         }
     }
 
@@ -54,10 +55,10 @@ public class CatController : ControllerBase
         Summary = "Cadastra um gatinho",
         Description = "Insere um registro na tabela de gatos no banco de dados"
     )]
-    [SwaggerResponse(201, "Gatinho cadastrado com sucesso", typeof(ReadCatDto))]
+    [SwaggerResponse(201, "Gatinho cadastrado com sucesso", typeof(ActionResult<ReadCatDto>))]
     [SwaggerResponse(400, "Erro na requisição")]
     [HttpPost]
-    public IActionResult Create(
+    public ActionResult Create(
         [FromBody, SwaggerParameter("Dados para o cadastro de um gatinho", Required = true)] CreateCatDto catDto
     )
     {
@@ -70,9 +71,9 @@ public class CatController : ControllerBase
 
             return CreatedAtAction(nameof(Show), new { id = cat.Id }, cat); // Informa ao usuário em qual caminho ele pode encontrar o recurso criado
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return BadRequest("Um erro inesperado ocorreu");
         }
        
     }
@@ -85,7 +86,7 @@ public class CatController : ControllerBase
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
     [HttpGet("{id:int}")]
-    public IActionResult Show(
+    public ActionResult<ReadCatDto> Show(
         [SwaggerParameter("Id do gatinhos a ser retornado", Required  = true)] int id
     )
     {
@@ -96,16 +97,16 @@ public class CatController : ControllerBase
                 .Include(vaccines => vaccines.Vaccines)
                 .FirstOrDefault(cat => cat.Id == id);
 
-            if (cat == null) 
+            if (cat == null)
                 return NotFound();
 
             var catDto = _mapper.Map<ReadCatDto>(cat);
 
-            return Ok(catDto);
+            return catDto;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return BadRequest("Um erro inesperado ocorreu");
         }
        
     }
@@ -118,7 +119,7 @@ public class CatController : ControllerBase
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
     [HttpPut("{id:int}")]
-    public IActionResult Update(
+    public ActionResult Update(
         [SwaggerParameter("Id do gatinho a ser atualizado", Required = true)] int id, 
         [FromBody, SwaggerParameter("Dados para a atualização de um gatinho", Required = true)] UpdateCatDto catDto
     )
@@ -136,9 +137,9 @@ public class CatController : ControllerBase
 
             return NoContent();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return BadRequest("Um erro inesperado ocorreu");
         }
        
     }
@@ -158,7 +159,7 @@ public class CatController : ControllerBase
         try
         {
             var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
-            if (cat == null) 
+            if (cat == null)
                 return NotFound();
 
             // Verificar se os campos de patch são válidos
@@ -175,9 +176,9 @@ public class CatController : ControllerBase
 
             return NoContent();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return BadRequest("Um erro inesperado ocorreu");
         }
         
     }
@@ -190,7 +191,7 @@ public class CatController : ControllerBase
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
     [HttpDelete("{id:int}")]
-    public IActionResult Destroy(
+    public ActionResult Destroy(
         [SwaggerParameter("Id do gatinho a ser removido", Required = true)] int id
     )
     {
@@ -207,9 +208,9 @@ public class CatController : ControllerBase
             
             return NoContent();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return BadRequest("Um erro inesperado ocorreu");
         }
         
     }
