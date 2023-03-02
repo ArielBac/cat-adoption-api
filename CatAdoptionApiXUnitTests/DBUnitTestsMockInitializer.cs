@@ -23,5 +23,16 @@ namespace CatAdoptionApiXUnitTests
 
             context.SaveChanges();
         }
+
+        public void VaccineSeed(CatAdoptionContext context)
+        {
+            context.Vaccines.Add(new Vaccine { Name = "v5", Producer = "Fabricante 1", Applied_at = DateTime.Parse("2020-05-12T15:30:00"), CatId = 1 });
+            context.Vaccines.Add(new Vaccine { Name = "v5", Producer = "Fabricante 1", Applied_at = DateTime.Parse("2022-04-12T09:48:00"), CatId = 2 });
+            context.Vaccines.Add(new Vaccine { Name = "v5", Producer = "Fabricante 1", Applied_at = DateTime.Parse("2022-04-12T08:23:00"), CatId = 5 });
+            context.Vaccines.Add(new Vaccine { Name = "v4", Producer = "Fabricante 3", Applied_at = DateTime.Parse("2020-04-12T14:20:00"), CatId = 3 });
+            context.Vaccines.Add(new Vaccine { Name = "v3", Producer = "Fabricante 2", Applied_at = DateTime.Parse("2021-06-10T07:55:00"), CatId = 4 });
+
+            context.SaveChanges();
+        }
     }
 }
