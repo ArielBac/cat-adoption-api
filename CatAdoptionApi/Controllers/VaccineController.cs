@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using CatAdoptionApi.Data;
-using CatAdoptionApi.Data.Dtos.Cats;
-using CatAdoptionApi.Data.Dtos.Vaccines;
 using CatAdoptionApi.Models;
+using CatAdoptionApi.Requests.Vaccines;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,16 +27,16 @@ public class VaccineController : ControllerBase
        Summary = "Recupera todas as vacinas cadastrados",
        Description = "Retorna todos os registros da tabela de vacinas do banco de dados"
     )]
-    [SwaggerResponse(200, "Lista de vacinas retornada com sucesso", typeof(IEnumerable<ReadVaccineDto>))]
+    [SwaggerResponse(200, "Lista de vacinas retornada com sucesso", typeof(IEnumerable<GetVaccineRequest>))]
     [HttpGet]
-    public ActionResult<IEnumerable<ReadVaccineDto>> Index(
+    public ActionResult<IEnumerable<GetVaccineRequest>> Index(
         [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] int skip = 0,
         [FromQuery, SwaggerParameter("Número de registros retornados", Required = false)] int take = 10
     )
     {
         try
         {
-            return _mapper.Map<List<ReadVaccineDto>>(_context.Vaccines
+            return _mapper.Map<List<GetVaccineRequest>>(_context.Vaccines
                            .AsNoTracking()
                            .Skip(skip)
                            .Take(take)
@@ -53,16 +52,16 @@ public class VaccineController : ControllerBase
        Summary = "Cadastra uma vacina aplicada a um gatinho",
        Description = "Insere um registro na tabela de vacinas no banco de dados"
     )]
-    [SwaggerResponse(201, "Vacina cadastrada com sucesso", typeof(ReadVaccineDto))]
+    [SwaggerResponse(201, "Vacina cadastrada com sucesso", typeof(GetVaccineRequest))]
     [SwaggerResponse(400, "Erro na requisição")]           
     [HttpPost]
     public ActionResult Create(
-        [FromBody, SwaggerParameter("Dados para o cadastro de uma vacina", Required = true)] CreateVaccineDto vaccineDto
+        [FromBody, SwaggerParameter("Dados para o cadastro de uma vacina", Required = true)] CreateVaccineRequest vaccineRequest
     )
     {
         try
         {
-            Vaccine vaccine = _mapper.Map<Vaccine>(vaccineDto);
+            Vaccine vaccine = _mapper.Map<Vaccine>(vaccineRequest);
 
             _context.Vaccines.Add(vaccine);
             _context.SaveChanges();
@@ -79,11 +78,11 @@ public class VaccineController : ControllerBase
         Summary = "Recupera uma vacina",
         Description = "Retorna um registro da tabela de vacinas no banco de dados, por id"
     )]
-    [SwaggerResponse(200, "Vacina retornada com sucesso", typeof(ReadVaccineDto))]
+    [SwaggerResponse(200, "Vacina retornada com sucesso", typeof(GetVaccineRequest))]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Vacina não encontrada")]
     [HttpGet("{id:int}")]
-    public ActionResult<ReadVaccineDto> Show(
+    public ActionResult<GetVaccineRequest> Show(
         [SwaggerParameter("Id da vacina a ser retornada", Required = true)] int id
     )
     {
@@ -97,9 +96,9 @@ public class VaccineController : ControllerBase
             if (vaccine == null) 
                 return NotFound();
 
-            var vaccineDto = _mapper.Map<ReadVaccineDto>(vaccine);
+            var vaccineRequest = _mapper.Map<GetVaccineRequest>(vaccine);
            
-            return vaccineDto;
+            return vaccineRequest;
         }
         catch (Exception)
         {
@@ -117,7 +116,7 @@ public class VaccineController : ControllerBase
     [HttpPut("{id:int}")]
     public ActionResult Update(
         [SwaggerParameter("Id da vacina a ser atualizada", Required = true)] int id,
-        [FromBody, SwaggerParameter("Dados para a atualização de uma vacina", Required = true)] UpdateVaccineDto vaccineDto
+        [FromBody, SwaggerParameter("Dados para a atualização de uma vacina", Required = true)] UpdateVaccineRequest vaccineRequest
     )
     {
         try
@@ -128,7 +127,7 @@ public class VaccineController : ControllerBase
             if (vaccine == null) 
                 return NotFound();
 
-            _mapper.Map(vaccineDto, vaccine);
+            _mapper.Map(vaccineRequest, vaccine);
             _context.SaveChanges();
 
             return NoContent();
@@ -149,7 +148,7 @@ public class VaccineController : ControllerBase
     [HttpPatch("{id:int}")]
     public IActionResult PartialUpdate(
         [SwaggerParameter("Id da vacina a ser atualizada", Required = true)] int id,
-        [FromBody, SwaggerParameter("Dados para a atualização de uma vacina")] JsonPatchDocument<UpdateVaccineDto> patch
+        [FromBody, SwaggerParameter("Dados para a atualização de uma vacina")] JsonPatchDocument<UpdateVaccineRequest> patch
     )
     {
         try
@@ -160,7 +159,7 @@ public class VaccineController : ControllerBase
             if (vaccine == null) 
                 return NotFound();
 
-            var vaccineToUpdate = _mapper.Map<UpdateVaccineDto>(vaccine);
+            var vaccineToUpdate = _mapper.Map<UpdateVaccineRequest>(vaccine);
             patch.ApplyTo(vaccineToUpdate, ModelState);
 
             if (!TryValidateModel(vaccineToUpdate))

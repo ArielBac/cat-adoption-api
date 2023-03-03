@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using CatAdoptionApi.Data;
-using CatAdoptionApi.Data.Dtos.Cats;
 using CatAdoptionApi.Models;
-using CatAdoptionApi.ViewModels;
+using CatAdoptionApi.Requests.Cats;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace CatAdoptionApi.Controllers;
@@ -29,17 +27,17 @@ public class CatController : ControllerBase
         Summary = "Recupera todos os gatinhos cadastrados",
         Description = "Retorna todos os registros da tabela de gatos do banco de dados"
     )]
-    [SwaggerResponse(200, "Lista de gatinhos retornada com sucesso", typeof(IEnumerable<ReadCatDto>))]
+    [SwaggerResponse(200, "Lista de gatinhos retornada com sucesso", typeof(IEnumerable<GetCatRequest>))]
     [SwaggerResponse(400, "Erro inesperado")]
     [HttpGet]
-    public ActionResult<IEnumerable<ReadCatDto>> Index(
+    public ActionResult<IEnumerable<GetCatRequest>> Index(
         [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] int skip = 0, 
         [FromQuery, SwaggerParameter("Número de registros retornados", Required = false)] int take = 10
     )
     {
         try
         {
-            return _mapper.Map<List<ReadCatDto>>(_context.Cats
+            return _mapper.Map<List<GetCatRequest>>(_context.Cats
                             .AsNoTracking()
                             .Skip(skip)
                             .Take(take)
@@ -55,16 +53,16 @@ public class CatController : ControllerBase
         Summary = "Cadastra um gatinho",
         Description = "Insere um registro na tabela de gatos no banco de dados"
     )]
-    [SwaggerResponse(201, "Gatinho cadastrado com sucesso", typeof(ReadCatDto))]
+    [SwaggerResponse(201, "Gatinho cadastrado com sucesso", typeof(GetCatRequest))]
     [SwaggerResponse(400, "Erro na requisição")]
     [HttpPost]
     public ActionResult Create(
-        [FromBody, SwaggerParameter("Dados para o cadastro de um gatinho", Required = true)] CreateCatDto catDto
+        [FromBody, SwaggerParameter("Dados para o cadastro de um gatinho", Required = true)] CreateCatRequest catRequest
     )
     {
         try
         {
-            Cat cat = _mapper.Map<Cat>(catDto);
+            Cat cat = _mapper.Map<Cat>(catRequest);
 
             _context.Cats.Add(cat);
             _context.SaveChanges();
@@ -82,11 +80,11 @@ public class CatController : ControllerBase
         Summary = "Recupera um gatinho",
         Description = "Retorna um registro da tabela de gatos no banco de dados, por id"
     )]
-    [SwaggerResponse(200, "Gatinho retornado com sucesso", typeof(ReadCatDto))]
+    [SwaggerResponse(200, "Gatinho retornado com sucesso", typeof(GetCatRequest))]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
     [HttpGet("{id:int}")]
-    public ActionResult<ReadCatDto> Show(
+    public ActionResult<GetCatRequest> Show(
         [SwaggerParameter("Id do gatinhos a ser retornado", Required  = true)] int id
     )
     {
@@ -100,9 +98,9 @@ public class CatController : ControllerBase
             if (cat == null)
                 return NotFound();
 
-            var catDto = _mapper.Map<ReadCatDto>(cat);
+            var catRequest = _mapper.Map<GetCatRequest>(cat);
 
-            return catDto;
+            return catRequest;
         }
         catch (Exception)
         {
@@ -121,7 +119,7 @@ public class CatController : ControllerBase
     [HttpPut("{id:int}")]
     public ActionResult Update(
         [SwaggerParameter("Id do gatinho a ser atualizado", Required = true)] int id, 
-        [FromBody, SwaggerParameter("Dados para a atualização de um gatinho", Required = true)] UpdateCatDto catDto
+        [FromBody, SwaggerParameter("Dados para a atualização de um gatinho", Required = true)] UpdateCatRequest catRequest
     )
     {
         try
@@ -132,7 +130,7 @@ public class CatController : ControllerBase
             if (cat == null) 
                 return NotFound();
 
-            _mapper.Map(catDto, cat);
+            _mapper.Map(catRequest, cat);
             _context.SaveChanges();
 
             return NoContent();
@@ -154,7 +152,7 @@ public class CatController : ControllerBase
     [HttpPatch("{id:int}")]
     public IActionResult PartialUpdate(
         [SwaggerParameter("Id do gatinho a ser atualizado", Required = true)] int id, 
-        [FromBody, SwaggerParameter("Dados para a atualização de um gatinho")] JsonPatchDocument<UpdateCatDto> patch)
+        [FromBody, SwaggerParameter("Dados para a atualização de um gatinho")] JsonPatchDocument<UpdateCatRequest> patch)
     {
         try
         {
@@ -163,7 +161,7 @@ public class CatController : ControllerBase
                 return NotFound();
 
             // Verificar se os campos de patch são válidos
-            var catToUpdate = _mapper.Map<UpdateCatDto>(cat);
+            var catToUpdate = _mapper.Map<UpdateCatRequest>(cat);
             patch.ApplyTo(catToUpdate, ModelState);
 
             if (!TryValidateModel(catToUpdate))
