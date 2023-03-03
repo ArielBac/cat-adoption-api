@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CatAdoptionApi.Data.Dtos.Vaccines;
 using CatAdoptionApi.Models;
-using CatAdoptionApi.Requests.Cats;
 using CatAdoptionApi.Requests.Vaccines;
 using CatAdoptionApi.ViewModels;
 

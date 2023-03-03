@@ -1,19 +1,11 @@
 ﻿using AutoMapper;
 using CatAdoptionApi.Controllers;
 using CatAdoptionApi.Data;
-using CatAdoptionApi.Data.Dtos.Cats;
-using CatAdoptionApi.Data.Dtos.Vaccines;
 using CatAdoptionApi.Profiles;
 using CatAdoptionApi.Requests.Vaccines;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CatAdoptionApiXUnitTests
 {
