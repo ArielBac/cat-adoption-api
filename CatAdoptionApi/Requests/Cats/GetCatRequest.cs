@@ -12,6 +12,6 @@ public class GetCatRequest
     public int Age { get; set; }
     public string Gender { get; set; } = null!;
 
-    public List<VaccineViewModel>? Vaccines { get; set; }
+    public ICollection<VaccineViewModel>? Vaccines { get; set; }
 }
 

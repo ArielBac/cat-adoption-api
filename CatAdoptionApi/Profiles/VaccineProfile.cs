@@ -12,8 +12,7 @@ public class VaccineProfile : Profile
     {
         CreateMap<Vaccine, GetVaccineRequest>();
         CreateMap<CreateVaccineRequest, Vaccine>();
-        CreateMap<UpdateVaccineRequest, Vaccine>();
-        CreateMap<Vaccine, UpdateVaccineRequest>();
+        CreateMap<Vaccine, UpdateVaccineRequest>().ReverseMap();
         CreateMap<Vaccine, VaccineViewModel>();
         
         //CreateMap<Vaccine, ReadVaccineDto>();

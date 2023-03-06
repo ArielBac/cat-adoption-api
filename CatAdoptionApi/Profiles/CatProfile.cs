@@ -10,10 +10,9 @@ public class CatProfile : Profile
 {
     public CatProfile()
     {
-        CreateMap<Cat, GetCatRequest>();
         CreateMap<CreateCatRequest, Cat>();
-        CreateMap<UpdateCatRequest, Cat>();
-        CreateMap<Cat, UpdateCatRequest>();
+        CreateMap<Cat, GetCatRequest>();
+        CreateMap<Cat, UpdateCatRequest>().ReverseMap();
         CreateMap<Cat, CatViewModel>();
         
         //CreateMap<CreateCatDto, Cat>();
@@ -21,8 +20,5 @@ public class CatProfile : Profile
         //CreateMap<Cat, ReadCatDto>();
         //CreateMap<Cat, UpdateCatDto>();
         //CreateMap<Cat, CatViewModel>();
-
-   
-
     }
 }
