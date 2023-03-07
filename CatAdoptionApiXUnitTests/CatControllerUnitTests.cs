@@ -6,12 +6,15 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CatAdoptionApi.Requests.Cats;
+using CatAdoptionApi.Repository;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace CatAdoptionApiXUnitTests
 {
     public class CatControllerUnitTests
     {
         // Configurando dados de teste usando recurso de armazenamento em memória do entity
+        private IUnitOfWork _unitOfWork;
         private CatAdoptionContext _context;
         private IMapper _mapper;
 
@@ -36,6 +39,8 @@ namespace CatAdoptionApiXUnitTests
 
             DBUnitTestsMockInitializer db = new DBUnitTestsMockInitializer();
             db.CatSeed(_context);
+
+            _unitOfWork = new UnitOfWork(_context);
         }
 
         // ======================================== Index action =============================================
@@ -43,7 +48,7 @@ namespace CatAdoptionApiXUnitTests
         public void Index_Return_OkResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
 
             // Act
             var data = controller.Index();
@@ -56,7 +61,7 @@ namespace CatAdoptionApiXUnitTests
         public void Index_Return_BadRequestResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
 
             // Act
             var data = controller.Index();
@@ -69,7 +74,7 @@ namespace CatAdoptionApiXUnitTests
         public void Index_MatchResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
 
             // Act
             var data = controller.Index();
@@ -99,7 +104,7 @@ namespace CatAdoptionApiXUnitTests
         public void Show_Return_OkResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catId = 2;
 
             // Act
@@ -113,7 +118,7 @@ namespace CatAdoptionApiXUnitTests
         public void Show_Return_NotFoundResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catId = 10;
 
             // Act
@@ -127,7 +132,7 @@ namespace CatAdoptionApiXUnitTests
         public void Show_Return_BadRequestResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catId = 1;
 
             // Act
@@ -141,7 +146,7 @@ namespace CatAdoptionApiXUnitTests
         public void Show_MatchResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catId = 3;
 
             // Act
@@ -165,7 +170,7 @@ namespace CatAdoptionApiXUnitTests
         public void Create_Return_CreatedResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catRequest = new CreateCatRequest { Name = "Fuleco", Age = 1, Breed = "Viralata", Color = "Preto", Gender = "M", Weight = 3.5 };
 
             // Act
@@ -179,7 +184,7 @@ namespace CatAdoptionApiXUnitTests
         public void Create_Return_BadRequestResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catRequest = new CreateCatRequest { Age = 1, Color = "Preto", Gender = "M", Weight = 3.5 };
 
             // Act
@@ -194,7 +199,7 @@ namespace CatAdoptionApiXUnitTests
         public void Update_Return_NoContentResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catRequest = new UpdateCatRequest { Name = "Jonas atualizado", Age = 1, Breed = "Viralata", Color = "Preto", Gender = "M", Weight = 3.5 };
             var catId = 2;
 
@@ -209,7 +214,7 @@ namespace CatAdoptionApiXUnitTests
         public void Update_Return_NotFoundResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catRequest = new UpdateCatRequest { Name = "Jonas atualizado", Age = 1, Breed = "Viralata", Color = "Preto", Gender = "M", Weight = 3.5 };
             var catId = 10;
 
@@ -224,7 +229,7 @@ namespace CatAdoptionApiXUnitTests
         public void Update_Return_BadRequestResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catRequest = new UpdateCatRequest { Name = "Jonas atualizado", Age = 1, Breed = "Viralata", Color = "Preto", Gender = "M", Weight = 3.5 };
             var catId = 2;
 
@@ -239,7 +244,7 @@ namespace CatAdoptionApiXUnitTests
         public void Update_MatchResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catRequest = new UpdateCatRequest { Name = "Joana atualizada", Age = 15, Breed = "Viralata", Color = "Marrom", Gender = "F", Weight = 3.5 };
             var catId = 3;
 
@@ -249,7 +254,7 @@ namespace CatAdoptionApiXUnitTests
             // Assert
             Assert.IsType<NoContentResult>(data);
 
-            var catUpdated = _context.Cats.FirstOrDefault(cat => cat.Id == catId);
+            var catUpdated = _unitOfWork.CatRepository.GetById(cat => cat.Id == catId);
 
             Assert.Equal(catId, catUpdated.Id);
             Assert.Equal(catRequest.Name, catUpdated.Name);
@@ -260,33 +265,18 @@ namespace CatAdoptionApiXUnitTests
         }
 
         // ============================================ PartialUpdate action ========================================
-<<<<<<< Updated upstream
-        //[Fact]
-        //public void PartialUpdate_Return_NoContentResult()
-        //{
-        //    // Arrange
-        //    var controller = new CatController(_context, _mapper);
-        //    var catId = 2;
-            
-        //    JsonPatchDocument<UpdateCatRequest> patch = new JsonPatchDocument<UpdateCatRequest>();
-        //    patch.Replace(cat => cat.Name, "Joana parcialmente atualizada");
-        //    patch.Replace(cat => cat.Color, "Amarelo");
-=======
         [Fact]
         public void PartialUpdate_Return_NoContentResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catId = 2;
-            JsonPatchDocument<UpdateCatDto> patch = new JsonPatchDocument<UpdateCatDto>();
+            JsonPatchDocument<UpdateCatRequest> patch = new JsonPatchDocument<UpdateCatRequest>();
             patch.Replace(cat => cat.Name, "Joana parcialmente atualizada");
             patch.Replace(cat => cat.Color, "Amarelo");
->>>>>>> Stashed changes
 
             // Act
             var data = controller.PartialUpdate(catId, patch);
-
-            var cats = _context.Cats;
 
             // Assert
             Assert.IsType<NoContentResult>(data);
@@ -297,7 +287,7 @@ namespace CatAdoptionApiXUnitTests
         public void Destroy_Return_NoContentResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catId = 3;
 
             // Act
@@ -311,7 +301,7 @@ namespace CatAdoptionApiXUnitTests
         public void Destroy_Return_NotFoundResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catId = 10;
 
             // Act
@@ -325,7 +315,7 @@ namespace CatAdoptionApiXUnitTests
         public void Destroy_Return_BadRequestResult()
         {
             // Arrange
-            var controller = new CatController(_context, _mapper);
+            var controller = new CatController(_unitOfWork, _mapper);
             var catId = 1;
 
             // Act

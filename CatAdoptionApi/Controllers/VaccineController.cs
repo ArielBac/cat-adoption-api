@@ -18,7 +18,7 @@ public class VaccineController : ControllerBase
     private IMapper _mapper;
     private IUnitOfWork _unitOfWork;
 
-    public VaccineController(IMapper mapper, IUnitOfWork unitOfWork)
+    public VaccineController(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
