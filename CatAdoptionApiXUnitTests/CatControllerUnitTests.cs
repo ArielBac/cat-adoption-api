@@ -260,24 +260,37 @@ namespace CatAdoptionApiXUnitTests
         }
 
         // ============================================ PartialUpdate action ========================================
+<<<<<<< Updated upstream
         //[Fact]
         //public void PartialUpdate_Return_NoContentResult()
         //{
         //    // Arrange
         //    var controller = new CatController(_context, _mapper);
         //    var catId = 2;
-        //    JsonPatchDocument<UpdateCatDto> patch = new JsonPatchDocument<UpdateCatDto>();
+            
+        //    JsonPatchDocument<UpdateCatRequest> patch = new JsonPatchDocument<UpdateCatRequest>();
         //    patch.Replace(cat => cat.Name, "Joana parcialmente atualizada");
         //    patch.Replace(cat => cat.Color, "Amarelo");
+=======
+        [Fact]
+        public void PartialUpdate_Return_NoContentResult()
+        {
+            // Arrange
+            var controller = new CatController(_context, _mapper);
+            var catId = 2;
+            JsonPatchDocument<UpdateCatDto> patch = new JsonPatchDocument<UpdateCatDto>();
+            patch.Replace(cat => cat.Name, "Joana parcialmente atualizada");
+            patch.Replace(cat => cat.Color, "Amarelo");
+>>>>>>> Stashed changes
 
-        //    // Act
-        //    var data = controller.PartialUpdate(catId, patch);
+            // Act
+            var data = controller.PartialUpdate(catId, patch);
 
-        //    var cats = _context.Cats;
+            var cats = _context.Cats;
 
-        //    // Assert
-        //    Assert.IsType<NoContentResult>(data);
-        //}
+            // Assert
+            Assert.IsType<NoContentResult>(data);
+        }
 
         // ============================================ Destroy action ==============================================
         [Fact]
