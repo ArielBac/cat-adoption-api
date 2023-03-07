@@ -17,9 +17,9 @@ public class CatController : ControllerBase
     private IUnitOfWork _unitOfWork;
     private IMapper _mapper;
 
-    public CatController(IUnitOfWork uof, IMapper mapper)
+    public CatController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _unitOfWork = uof;
+        _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
 
@@ -100,9 +100,9 @@ public class CatController : ControllerBase
             if (cat == null)
                 return NotFound();
 
-            var catRequest = _mapper.Map<GetCatRequest>(cat);
+            var catGetRequest = _mapper.Map<GetCatRequest>(cat);
 
-            return catRequest;
+            return catGetRequest;
         }
         catch (Exception)
         {
