@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
-using CatAdoptionApi.Data;
 using CatAdoptionApi.Models;
+using CatAdoptionApi.Repository;
+using CatAdoptionApi.Requests.Cats;
 using CatAdoptionApi.Requests.Vaccines;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +15,13 @@ namespace CatAdoptionApi.Controllers;
 [Produces("application/json")]
 public class VaccineController : ControllerBase
 {
-    private CatAdoptionContext _context;
     private IMapper _mapper;
+    private IUnitOfWork _unitOfWork;
 
-    public VaccineController(CatAdoptionContext context, IMapper mapper)
+    public VaccineController(IMapper mapper, IUnitOfWork unitOfWork)
     {
-        _context = context;
         _mapper = mapper;
+        _unitOfWork = unitOfWork;
     }
 
     [SwaggerOperation(
@@ -36,11 +37,13 @@ public class VaccineController : ControllerBase
     {
         try
         {
-            return _mapper.Map<List<GetVaccineRequest>>(_context.Vaccines
-                           .AsNoTracking()
-                           .Skip(skip)
-                           .Take(take)
-                           .Include(cat => cat.Cat));
+            var vaccines = _unitOfWork.VaccineRepository.GetVaccinesCat()
+                                                        .Skip(skip)
+                                                        .Take(take);
+
+            var vaccinesGetRequest = _mapper.Map<List<GetVaccineRequest>>(vaccines);
+
+            return vaccinesGetRequest;
         }
         catch (Exception)
         {
@@ -61,12 +64,14 @@ public class VaccineController : ControllerBase
     {
         try
         {
-            Vaccine vaccine = _mapper.Map<Vaccine>(vaccineRequest);
+            var vaccine = _mapper.Map<Vaccine>(vaccineRequest);
 
-            _context.Vaccines.Add(vaccine);
-            _context.SaveChanges();
+            _unitOfWork.VaccineRepository.Add(vaccine);
+            _unitOfWork.Commit();
 
-            return CreatedAtAction(nameof(Show), new { id = vaccine.Id }, vaccine);
+            var vaccineGetRequest = _mapper.Map<GetVaccineRequest>(vaccine);
+
+            return CreatedAtAction(nameof(Show), new { id = vaccine.Id }, vaccineGetRequest);
         }
         catch (Exception)
         {
@@ -88,17 +93,14 @@ public class VaccineController : ControllerBase
     {
         try
         {
-            var vaccine = _context.Vaccines
-                .AsNoTracking()
-                .Include(cat => cat.Cat)
-                .FirstOrDefault(vaccine => vaccine.Id == id);
+            var vaccine = _unitOfWork.VaccineRepository.GetVaccineCat(vaccine => vaccine.Id == id);
             
             if (vaccine == null) 
                 return NotFound();
 
-            var vaccineRequest = _mapper.Map<GetVaccineRequest>(vaccine);
+            var vaccineGetRequest = _mapper.Map<GetVaccineRequest>(vaccine);
            
-            return vaccineRequest;
+            return vaccineGetRequest;
         }
         catch (Exception)
         {
@@ -121,14 +123,14 @@ public class VaccineController : ControllerBase
     {
         try
         {
-            var vaccine = _context.Vaccines
-                .FirstOrDefault(vaccine => vaccine.Id == id);
+            var vaccine = _unitOfWork.VaccineRepository.GetById(vaccine => vaccine.Id == id);
 
             if (vaccine == null) 
                 return NotFound();
 
             _mapper.Map(vaccineRequest, vaccine);
-            _context.SaveChanges();
+            _unitOfWork.VaccineRepository.Update(vaccine);
+            _unitOfWork.Commit();
 
             return NoContent();
         }
@@ -153,8 +155,7 @@ public class VaccineController : ControllerBase
     {
         try
         {
-            var vaccine = _context.Vaccines
-                .FirstOrDefault(vaccine => vaccine.Id == id);
+            var vaccine = _unitOfWork.VaccineRepository.GetById(vaccine => vaccine.Id == id);
 
             if (vaccine == null) 
                 return NotFound();
@@ -162,13 +163,9 @@ public class VaccineController : ControllerBase
             var vaccineToUpdate = _mapper.Map<UpdateVaccineRequest>(vaccine);
             patch.ApplyTo(vaccineToUpdate, ModelState);
 
-            if (!TryValidateModel(vaccineToUpdate))
-            {
-                return ValidationProblem();
-            }
-
             _mapper.Map(vaccineToUpdate, vaccine);
-            _context.SaveChanges();
+            _unitOfWork.VaccineRepository.Update(vaccine);
+            _unitOfWork.Commit();
 
             return NoContent();
         }
@@ -193,14 +190,13 @@ public class VaccineController : ControllerBase
     {
         try
         {
-            var vaccine = _context.Vaccines
-                .FirstOrDefault(vaccine => vaccine.Id == id);
+            var vaccine = _unitOfWork.VaccineRepository.GetById(vaccine => vaccine.Id == id);
 
             if (vaccine == null) 
                 return NotFound();
             
-            _context.Vaccines.Remove(vaccine);
-            _context.SaveChanges();
+            _unitOfWork.VaccineRepository.Delete(vaccine);
+            _unitOfWork.Commit();
 
             return NoContent();
         }
