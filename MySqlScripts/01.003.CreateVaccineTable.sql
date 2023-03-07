@@ -1,0 +1,13 @@
+#MySQL
+
+USE cat_adoption_db;
+    
+CREATE TABLE IF NOT EXISTS vaccines(
+	Id INT PRIMARY KEY AUTO_INCREMENT,
+	Name VARCHAR(30) NOT NULL, 
+	Producer VARCHAR(50) NOT NULL,
+	Applied_at DATETIME NOT NULL,
+    CatId INT NOT NULL,
+    
+     CONSTRAINT FK_vaccines_cats_CatId FOREIGN KEY (CatId) REFERENCES cats (Id) ON DELETE CASCADE		
+);
