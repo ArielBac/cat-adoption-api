@@ -4,7 +4,6 @@ using CatAdoptionApi.Repository;
 using CatAdoptionApi.Requests.Cats;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace CatAdoptionApi.Controllers;

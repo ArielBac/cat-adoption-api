@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using CatAdoptionApi.Data.Dtos.Cats;
 using CatAdoptionApi.Models;
 using CatAdoptionApi.Requests.Cats;
 using CatAdoptionApi.ViewModels;

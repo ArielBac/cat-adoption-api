@@ -1,7 +1,6 @@
 ﻿using CatAdoptionApi.Data;
 using CatAdoptionApi.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Dynamic;
 using System.Linq.Expressions;
 
 namespace CatAdoptionApi.Repository.Cats

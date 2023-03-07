@@ -3,7 +3,6 @@ using CatAdoptionApi.Controllers;
 using CatAdoptionApi.Data;
 using CatAdoptionApi.Profiles;
 using CatAdoptionApi.Repository;
-using CatAdoptionApi.Requests.Cats;
 using CatAdoptionApi.Requests.Vaccines;
 using FluentAssertions;
 using Microsoft.AspNetCore.JsonPatch;

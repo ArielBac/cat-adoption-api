@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
 using CatAdoptionApi.Models;
 using CatAdoptionApi.Repository;
-using CatAdoptionApi.Requests.Cats;
 using CatAdoptionApi.Requests.Vaccines;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace CatAdoptionApi.Controllers;
