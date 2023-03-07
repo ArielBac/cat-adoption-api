@@ -1,4 +1,5 @@
 using CatAdoptionApi.Data;
+using CatAdoptionApi.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -16,6 +17,9 @@ builder.Services.AddDbContext<CatAdoptionContext>(options =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddControllers().AddNewtonsoftJson(); // Add Newtonsoft
+
+// Add Repository Service
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //Possível solução para o erro de looping ao retornar os relacionamentos, porém não recomendável
 //builder.Services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);

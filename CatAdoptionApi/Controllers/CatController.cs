@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using CatAdoptionApi.Data;
 using CatAdoptionApi.Models;
+using CatAdoptionApi.Repository;
 using CatAdoptionApi.Requests.Cats;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +14,12 @@ namespace CatAdoptionApi.Controllers;
 [Produces("application/json")]
 public class CatController : ControllerBase
 {
-    private CatAdoptionContext _context;
+    private IUnitOfWork _unitOfWork;
     private IMapper _mapper;
 
-    public CatController(CatAdoptionContext context, IMapper mapper)
+    public CatController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _context = context;
+        _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
 
@@ -37,11 +37,14 @@ public class CatController : ControllerBase
     {
         try
         {
-            return _mapper.Map<List<GetCatRequest>>(_context.Cats
-                            .AsNoTracking()
+            var cats = _unitOfWork.CatRepository
+                            .GetCatsVaccines()
                             .Skip(skip)
-                            .Take(take)
-                            .Include(vaccines => vaccines.Vaccines));
+                            .Take(take);
+            
+            var catsGetRequest = _mapper.Map<List<GetCatRequest>>(cats);
+            
+            return catsGetRequest;
         }
         catch (Exception)
         {
@@ -62,12 +65,14 @@ public class CatController : ControllerBase
     {
         try
         {
-            Cat cat = _mapper.Map<Cat>(catRequest);
+            var cat = _mapper.Map<Cat>(catRequest);
 
-            _context.Cats.Add(cat);
-            _context.SaveChanges();
+            _unitOfWork.CatRepository.Add(cat);
+            _unitOfWork.Commit();
 
-            return CreatedAtAction(nameof(Show), new { id = cat.Id }, cat); // Informa ao usuário em qual caminho ele pode encontrar o recurso criado
+            var catGetRequest = _mapper.Map<GetCatRequest>(cat);
+
+            return CreatedAtAction(nameof(Show), new { id = cat.Id }, catGetRequest); // Informa ao usuário em qual caminho ele pode encontrar o recurso criado
         }
         catch (Exception)
         {
@@ -90,17 +95,14 @@ public class CatController : ControllerBase
     {
         try
         {
-            var cat = _context.Cats
-                .AsNoTracking()
-                .Include(vaccines => vaccines.Vaccines)
-                .FirstOrDefault(cat => cat.Id == id);
+            var cat = _unitOfWork.CatRepository.GetCatVaccines(c => c.Id == id);
 
             if (cat == null)
                 return NotFound();
 
-            var catRequest = _mapper.Map<GetCatRequest>(cat);
+            var catGetRequest = _mapper.Map<GetCatRequest>(cat);
 
-            return catRequest;
+            return catGetRequest;
         }
         catch (Exception)
         {
@@ -124,14 +126,14 @@ public class CatController : ControllerBase
     {
         try
         {
-            var cat = _context.Cats
-                .FirstOrDefault(cat => cat.Id == id);
+            var cat = _unitOfWork.CatRepository.GetById(cat => cat.Id == id);
 
             if (cat == null) 
                 return NotFound();
 
             _mapper.Map(catRequest, cat);
-            _context.SaveChanges();
+            _unitOfWork.CatRepository.Update(cat);
+            _unitOfWork.Commit();
 
             return NoContent();
         }
@@ -156,7 +158,7 @@ public class CatController : ControllerBase
     {
         try
         {
-            var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
+            var cat = _unitOfWork.CatRepository.GetById(cat => cat.Id == id);
             if (cat == null)
                 return NotFound();
 
@@ -164,13 +166,9 @@ public class CatController : ControllerBase
             var catToUpdate = _mapper.Map<UpdateCatRequest>(cat);
             patch.ApplyTo(catToUpdate, ModelState);
 
-            if (!TryValidateModel(catToUpdate))
-            {
-                return ValidationProblem(ModelState);
-            }
-
             _mapper.Map(catToUpdate, cat);
-            _context.SaveChanges();
+            _unitOfWork.CatRepository.Update(cat);
+            _unitOfWork.Commit();
 
             return NoContent();
         }
@@ -195,14 +193,13 @@ public class CatController : ControllerBase
     {
         try
         {
-            var cat = _context.Cats
-                .FirstOrDefault(cat => cat.Id == id);
+            var cat = _unitOfWork.CatRepository.GetById(cat => cat.Id == id);
             
             if (cat == null) 
                 return NotFound();
             
-            _context.Cats.Remove(cat);
-            _context.SaveChanges();
+            _unitOfWork.CatRepository.Delete(cat);
+            _unitOfWork.Commit();
             
             return NoContent();
         }

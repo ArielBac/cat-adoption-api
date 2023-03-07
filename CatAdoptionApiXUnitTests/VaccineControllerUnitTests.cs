@@ -2,8 +2,11 @@
 using CatAdoptionApi.Controllers;
 using CatAdoptionApi.Data;
 using CatAdoptionApi.Profiles;
+using CatAdoptionApi.Repository;
+using CatAdoptionApi.Requests.Cats;
 using CatAdoptionApi.Requests.Vaccines;
 using FluentAssertions;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +15,7 @@ namespace CatAdoptionApiXUnitTests
     public class VaccineControllerUnitTests
     {
         // Configurando dados de teste usando recurso de armazenamento em memória do entity
+        private IUnitOfWork _unitOfWork;
         private CatAdoptionContext _context;
         private IMapper _mapper;
 
@@ -36,8 +40,11 @@ namespace CatAdoptionApiXUnitTests
             _context = new CatAdoptionContext(dbContextOptions);
 
             DBUnitTestsMockInitializer db = new DBUnitTestsMockInitializer();
+
             db.CatSeed(_context);
             db.VaccineSeed(_context);
+
+            _unitOfWork = new UnitOfWork(_context);
         }
 
         // ======================================== Index action =============================================
@@ -45,7 +52,7 @@ namespace CatAdoptionApiXUnitTests
         public void Index_Return_OkResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
 
             // Act
             var data = controller.Index();
@@ -58,7 +65,7 @@ namespace CatAdoptionApiXUnitTests
         public void Index_Return_BadRequestResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
 
             // Act
             var data = controller.Index();
@@ -71,7 +78,7 @@ namespace CatAdoptionApiXUnitTests
         public void Index_MatchResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
 
             // Act
             var data = controller.Index();
@@ -99,7 +106,7 @@ namespace CatAdoptionApiXUnitTests
         public void Show_Return_OkResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 2;
 
             // Act
@@ -113,7 +120,7 @@ namespace CatAdoptionApiXUnitTests
         public void Show_Return_NotFoundResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 10;
 
             // Act
@@ -127,7 +134,7 @@ namespace CatAdoptionApiXUnitTests
         public void Show_Return_BadRequestResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 1;
 
             // Act
@@ -141,7 +148,7 @@ namespace CatAdoptionApiXUnitTests
         public void Show_MatchResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 4;
 
             // Act
@@ -162,7 +169,7 @@ namespace CatAdoptionApiXUnitTests
         public void Create_Return_CreatedResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineRequest = new CreateVaccineRequest { Name = "Vacina de teste create", Producer = "Fabricante de teste", Applied_at = DateTime.Parse("2022-08-12T17:32:00"), CatId = 5 };
 
             // Act
@@ -176,7 +183,7 @@ namespace CatAdoptionApiXUnitTests
         public void Create_Return_BadRequestResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineRequest = new CreateVaccineRequest { Producer = "Fabricante de teste", Applied_at = DateTime.Parse("2022-08-12T17:32:00"), CatId = 20 };
 
             // Act
@@ -191,7 +198,7 @@ namespace CatAdoptionApiXUnitTests
         public void Update_Return_NoContentResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineRequest = new UpdateVaccineRequest { Name = "Vacina de teste update", Producer = "Fabricante de teste", Applied_at = DateTime.Parse("2022-08-12T17:32:00") };
             var vaccineId = 2;
 
@@ -206,7 +213,7 @@ namespace CatAdoptionApiXUnitTests
         public void Update_Return_NotFoundResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineRequest = new UpdateVaccineRequest { Name = "Vacina de teste update", Producer = "Fabricante de teste", Applied_at = DateTime.Parse("2022-08-12T17:32:00") };
             var vaccineId = 10;
 
@@ -221,7 +228,7 @@ namespace CatAdoptionApiXUnitTests
         public void Update_Return_BadRequestResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineRequest = new UpdateVaccineRequest { Name = "Vacina de teste update" };
             var vaccineId = 2;
 
@@ -236,7 +243,7 @@ namespace CatAdoptionApiXUnitTests
         public void Update_MatchResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineRequest = new UpdateVaccineRequest { Name = "Vacina de teste update", Producer = "Fabricante de teste", Applied_at = DateTime.Parse("2022-08-12T17:32:00") };
             var vaccineId = 3;
 
@@ -246,7 +253,7 @@ namespace CatAdoptionApiXUnitTests
             // Assert
             Assert.IsType<NoContentResult>(data);
 
-            var vaccineUpdated = _context.Vaccines.FirstOrDefault(vaccine => vaccine.Id == vaccineId);
+            var vaccineUpdated = _unitOfWork.VaccineRepository.GetById(vaccine => vaccine.Id == vaccineId);
 
             Assert.Equal(vaccineId, vaccineUpdated.Id);
             Assert.Equal(vaccineRequest.Name, vaccineUpdated.Name);
@@ -254,12 +261,32 @@ namespace CatAdoptionApiXUnitTests
             Assert.Equal(vaccineRequest.Applied_at, vaccineUpdated.Applied_at);
         }
 
+        // ============================================ PartialUpdate action ========================================
+        [Fact]
+        public void PartialUpdate_Return_NoContentResult()
+        {
+            // Arrange
+            var controller = new VaccineController(_unitOfWork, _mapper);
+            var vaccineId = 2;
+            JsonPatchDocument<UpdateVaccineRequest> patch = new JsonPatchDocument<UpdateVaccineRequest>();
+            patch.Replace(vaccine => vaccine.Name, "v5 parcialmente atualizado");
+            patch.Replace(vaccine => vaccine.Producer, "Fabricante 1 parcialmente atualizado");
+
+            // Act
+            var data = controller.PartialUpdate(vaccineId, patch);
+
+            var vaccines = _unitOfWork.VaccineRepository.GetVaccinesCat();
+
+            // Assert
+            Assert.IsType<NoContentResult>(data);
+        }
+
         // ============================================ Destroy action ==============================================
         [Fact]
         public void Destroy_Return_NoContentResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 3;
 
             // Act
@@ -273,7 +300,7 @@ namespace CatAdoptionApiXUnitTests
         public void Destroy_Return_NotFoundResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 10;
 
             // Act
@@ -287,7 +314,7 @@ namespace CatAdoptionApiXUnitTests
         public void Destroy_Return_BadRequestResult()
         {
             // Arrange
-            var controller = new VaccineController(_context, _mapper);
+            var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 1;
 
             // Act
