@@ -1,11 +1,12 @@
 ﻿using CatAdoptionApi.Models;
+using CatAdoptionApi.Pagination;
 using System.Linq.Expressions;
 
 namespace CatAdoptionApi.Repository.Vaccines
 {
     public interface IVaccineRepository : IRepository<Vaccine>
     {
-        IEnumerable<Vaccine> GetVaccinesCat();
+        PagedList<Vaccine> GetVaccinesCat(VaccineParameters vaccineParameters);
         Vaccine GetVaccineCat(Expression<Func<Vaccine, bool>> predicate);
     }
 }

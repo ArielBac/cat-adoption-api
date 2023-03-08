@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using CatAdoptionApi.Models;
+using CatAdoptionApi.Pagination;
 using CatAdoptionApi.Repository;
 using CatAdoptionApi.Requests.Vaccines;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Text.Json;
 
 namespace CatAdoptionApi.Controllers;
 
@@ -29,15 +31,24 @@ public class VaccineController : ControllerBase
     [SwaggerResponse(200, "Lista de vacinas retornada com sucesso", typeof(IEnumerable<GetVaccineRequest>))]
     [HttpGet]
     public ActionResult<IEnumerable<GetVaccineRequest>> Index(
-        [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] int skip = 0,
-        [FromQuery, SwaggerParameter("Número de registros retornados", Required = false)] int take = 10
+        [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] VaccineParameters vaccineParameters
     )
     {
         try
         {
-            var vaccines = _unitOfWork.VaccineRepository.GetVaccinesCat()
-                                                        .Skip(skip)
-                                                        .Take(take);
+            var vaccines = _unitOfWork.VaccineRepository.GetVaccinesCat(vaccineParameters);
+
+            var metadata = new
+            {
+                vaccines.TotalCount,
+                vaccines.PageSize,
+                vaccines.CurrentPage,
+                vaccines.TotalPages,
+                vaccines.HasNext,
+                vaccines.HasPrevious
+            };
+
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
 
             var vaccinesGetRequest = _mapper.Map<List<GetVaccineRequest>>(vaccines);
 

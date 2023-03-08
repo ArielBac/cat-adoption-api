@@ -1,5 +1,6 @@
 ﻿using CatAdoptionApi.Data;
 using CatAdoptionApi.Models;
+using CatAdoptionApi.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -11,9 +12,11 @@ namespace CatAdoptionApi.Repository.Cats
         {
         }
 
-        public IEnumerable<Cat> GetCatsVaccines()
+        public PagedList<Cat> GetCatsVaccines(CatParameters catParameters)
         {
-            return Get().Include(cat => cat.Vaccines);
+            var source = Get().Include(cat => cat.Vaccines).OrderBy(cat => cat.Name);
+          
+            return PagedList<Cat>.ToPagedList(source, catParameters.PageNumber, catParameters.PageSize);
         }
 
         public Cat GetCatVaccines(Expression<Func<Cat, bool>> predicate)

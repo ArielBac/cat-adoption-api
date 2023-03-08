@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using CatAdoptionApi.Models;
+using CatAdoptionApi.Pagination;
 using CatAdoptionApi.Repository;
 using CatAdoptionApi.Requests.Cats;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Text.Json;
 
 namespace CatAdoptionApi.Controllers;
 
@@ -30,17 +32,25 @@ public class CatController : ControllerBase
     [SwaggerResponse(400, "Erro inesperado")]
     [HttpGet]
     public ActionResult<IEnumerable<GetCatRequest>> Index(
-        [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] int skip = 0, 
-        [FromQuery, SwaggerParameter("Número de registros retornados", Required = false)] int take = 10
+        [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] CatParameters catParameters
     )
     {
         try
         {
-            var cats = _unitOfWork.CatRepository
-                            .GetCatsVaccines()
-                            .Skip(skip)
-                            .Take(take);
-            
+            var cats = _unitOfWork.CatRepository.GetCatsVaccines(catParameters);
+
+            var metadata = new
+            {
+                cats.TotalCount,
+                cats.PageSize,
+                cats.CurrentPage,
+                cats.TotalPages,
+                cats.HasNext,
+                cats.HasPrevious
+            };
+
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
+                            
             var catsGetRequest = _mapper.Map<List<GetCatRequest>>(cats);
             
             return catsGetRequest;
