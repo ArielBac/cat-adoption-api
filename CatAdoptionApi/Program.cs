@@ -18,7 +18,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddControllers().AddNewtonsoftJson(); // Add Newtonsoft
 
-// Add Repository Service
+// Add Repository/UnitOfWork Service
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //Possível solução para o erro de looping ao retornar os relacionamentos, porém não recomendável
