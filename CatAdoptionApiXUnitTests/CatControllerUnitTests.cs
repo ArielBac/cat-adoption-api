@@ -50,7 +50,7 @@ namespace CatAdoptionApiXUnitTests
         // Arrumar testes de index, pois depois da paginação, pararam de funcionar
         //[Fact(Skip="Depois da paginação, parou de funcionar")]
         [Fact]
-        public void Index_Return_OkResult()
+        public async Task Index_Return_OkResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
@@ -63,7 +63,7 @@ namespace CatAdoptionApiXUnitTests
             catParameters.PageSize = 10;
 
             // Act
-            var data = controller.Index(catParameters);
+            var data = await controller.Index(catParameters);
 
             // Assert
             Assert.IsType<List<GetCatRequest>>(data.Value);
@@ -71,21 +71,21 @@ namespace CatAdoptionApiXUnitTests
 
         [Fact]
         // Como não inicializei o HttpContext, vou ter uma exceção
-        public void Index_Return_BadRequestResult()
+        public async Task Index_Return_BadRequestResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
             var catParameters = new CatParameters();
 
             // Act
-            var data = controller.Index(catParameters);
+            var data = await controller.Index(catParameters);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(data.Result);
         }
 
         [Fact]
-        public void Index_MatchResult()
+        public async Task Index_MatchResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
@@ -96,7 +96,7 @@ namespace CatAdoptionApiXUnitTests
             var catParameters = new CatParameters();
 
             // Act
-            var data = controller.Index(catParameters);
+            var data = await controller.Index(catParameters);
 
             // Assert
             Assert.IsType<List<GetCatRequest>>(data.Value);
@@ -121,56 +121,56 @@ namespace CatAdoptionApiXUnitTests
 
         // ======================================== Show action =============================================
         [Fact]
-        public void Show_Return_OkResult()
+        public async Task Show_Return_OkResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
             var catId = 2;
 
             // Act
-            var data = controller.Show(catId);
+            var data = await controller.Show(catId);
 
             // Assert
             Assert.IsType<GetCatRequest>(data.Value);
         }
 
         [Fact]
-        public void Show_Return_NotFoundResult()
+        public async Task Show_Return_NotFoundResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
             var catId = 10;
 
             // Act
-            var data = controller.Show(catId);
+            var data = await controller.Show(catId);
 
             // Assert
             Assert.IsType<NotFoundResult>(data.Result);
         }
 
         [Fact(Skip = "Para este teste passar, é preciso lançar uma exceção no controller")]
-        public void Show_Return_BadRequestResult()
+        public async Task Show_Return_BadRequestResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
             var catId = 1;
 
             // Act
-            var data = controller.Show(catId);
+            var data = await controller.Show(catId);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(data.Result);
         }
 
         [Fact]
-        public void Show_MatchResult()
+        public async Task Show_MatchResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
             var catId = 3;
 
             // Act
-            var data = controller.Show(catId);
+            var data = await controller.Show(catId);
 
             // Assert
             Assert.IsType<GetCatRequest>(data.Value);
@@ -187,28 +187,28 @@ namespace CatAdoptionApiXUnitTests
 
         // ============================================ Create action ==============================================
         [Fact]
-        public void Create_Return_CreatedResult()
+        public async Task Create_Return_CreatedResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
             var catRequest = new CreateCatRequest { Name = "Fuleco", Age = 1, Breed = "Viralata", Color = "Preto", Gender = "M", Weight = 3.5 };
 
             // Act
-            var data = controller.Create(catRequest);
+            var data = await controller.Create(catRequest);
 
             // Assert
             Assert.IsType<CreatedAtActionResult>(data);
         }
 
         [Fact]
-        public void Create_Return_BadRequestResult()
+        public async Task Create_Return_BadRequestResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
             var catRequest = new CreateCatRequest { Age = 1, Color = "Preto", Gender = "M", Weight = 3.5 };
 
             // Act
-            var data = controller.Create(catRequest);
+            var data = await controller.Create(catRequest);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(data);
@@ -216,7 +216,7 @@ namespace CatAdoptionApiXUnitTests
 
         // ============================================ Update action ==============================================
         [Fact]
-        public void Update_Return_NoContentResult()
+        public async Task Update_Return_NoContentResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
@@ -224,14 +224,14 @@ namespace CatAdoptionApiXUnitTests
             var catId = 2;
 
             // Act
-            var data = controller.Update(catId, catRequest);
+            var data = await controller.Update(catId, catRequest);
 
             // Assert
             Assert.IsType<NoContentResult>(data);
         }
 
         [Fact]
-        public void Update_Return_NotFoundResult()
+        public async Task Update_Return_NotFoundResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
@@ -239,14 +239,14 @@ namespace CatAdoptionApiXUnitTests
             var catId = 10;
 
             // Act
-            var data = controller.Update(catId, catRequest);
+            var data = await controller.Update(catId, catRequest);
 
             // Assert
             Assert.IsType<NotFoundResult>(data);
         }
 
         [Fact(Skip = "Para este teste passar, é preciso lançar uma exceção no controller")]
-        public void Update_Return_BadRequestResult()
+        public async Task Update_Return_BadRequestResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
@@ -254,14 +254,14 @@ namespace CatAdoptionApiXUnitTests
             var catId = 2;
 
             // Act
-            var data = controller.Update(catId, catRequest);
+            var data = await controller.Update(catId, catRequest);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(data);
         }
 
         [Fact]
-        public void Update_MatchResult()
+        public async Task Update_MatchResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
@@ -269,12 +269,12 @@ namespace CatAdoptionApiXUnitTests
             var catId = 3;
 
             // Act
-            var data = controller.Update(catId, catRequest);
+            var data = await controller.Update(catId, catRequest);
 
             // Assert
             Assert.IsType<NoContentResult>(data);
 
-            var catUpdated = _unitOfWork.CatRepository.GetById(cat => cat.Id == catId);
+            var catUpdated = await _unitOfWork.CatRepository.GetById(cat => cat.Id == catId);
 
             Assert.Equal(catId, catUpdated.Id);
             Assert.Equal(catRequest.Name, catUpdated.Name);
@@ -286,7 +286,7 @@ namespace CatAdoptionApiXUnitTests
 
         // ============================================ PartialUpdate action ========================================
         [Fact]
-        public void PartialUpdate_Return_NoContentResult()
+        public async Task PartialUpdate_Return_NoContentResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
@@ -296,7 +296,7 @@ namespace CatAdoptionApiXUnitTests
             patch.Replace(cat => cat.Color, "Amarelo");
 
             // Act
-            var data = controller.PartialUpdate(catId, patch);
+            var data = await controller.PartialUpdate(catId, patch);
 
             // Assert
             Assert.IsType<NoContentResult>(data);
@@ -304,47 +304,42 @@ namespace CatAdoptionApiXUnitTests
 
         // ============================================ Destroy action ==============================================
         [Fact]
-        public void Destroy_Return_NoContentResult()
+        public async Task Destroy_Return_NoContentResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
             var catId = 3;
 
             // Act
-            var data = controller.Destroy(catId);
+            var data = await controller.Destroy(catId);
 
             // Assert
             Assert.IsType<NoContentResult>(data);
         }
 
         [Fact]
-        public void Destroy_Return_NotFoundResult()
+        public async Task Destroy_Return_NotFoundResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
             var catId = 10;
 
-            CatParameters catParameters = new CatParameters();
-            catParameters.PageNumber = 1;
-            catParameters.PageSize = 10;
-
-            var cat = _unitOfWork.CatRepository.GetCatsVaccines(catParameters);
             // Act
-            var data = controller.Destroy(catId);
+            var data = await controller.Destroy(catId);
 
             // Assert
             Assert.IsType<NotFoundResult>(data);
         }
 
         [Fact(Skip = "Para este teste passar, é preciso lançar uma exceção no controller")]
-        public void Destroy_Return_BadRequestResult()
+        public async Task Destroy_Return_BadRequestResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
             var catId = 1;
 
             // Act
-            var data = controller.Destroy(catId);
+            var data = await controller.Destroy(catId);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(data);

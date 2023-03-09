@@ -52,7 +52,7 @@ namespace CatAdoptionApiXUnitTests
         // TODO
         // Arrumar testes de index, pois depois da paginação, pararam de funcionar
         [Fact]
-        public void Index_Return_OkResult()
+        public async Task Index_Return_OkResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
@@ -63,7 +63,7 @@ namespace CatAdoptionApiXUnitTests
             var vaccineParameters = new VaccineParameters();
 
             // Act
-            var data = controller.Index(vaccineParameters);
+            var data = await controller.Index(vaccineParameters);
 
             // Assert
             Assert.IsType<List<GetVaccineRequest>>(data.Value);
@@ -71,21 +71,21 @@ namespace CatAdoptionApiXUnitTests
 
         [Fact]
         // Como não inicializei o HttpContext, vou ter uma exceção
-        public void Index_Return_BadRequestResult()
+        public async Task Index_Return_BadRequestResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineParameters = new VaccineParameters();
 
             // Act
-            var data = controller.Index(vaccineParameters);
+            var data = await controller.Index(vaccineParameters);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(data.Result);
         }
 
         [Fact]
-        public void Index_MatchResult()
+        public async Task Index_MatchResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
@@ -96,7 +96,7 @@ namespace CatAdoptionApiXUnitTests
             var vaccineParameters = new VaccineParameters();
 
             // Act
-            var data = controller.Index(vaccineParameters);
+            var data = await controller.Index(vaccineParameters);
 
             // Assert
             Assert.IsType<List<GetVaccineRequest>>(data.Value);
@@ -119,56 +119,56 @@ namespace CatAdoptionApiXUnitTests
 
         // ======================================== Show action =============================================
         [Fact]
-        public void Show_Return_OkResult()
+        public async Task Show_Return_OkResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 2;
 
             // Act
-            var data = controller.Show(vaccineId);
+            var data = await controller.Show(vaccineId);
 
             // Assert
             Assert.IsType<GetVaccineRequest>(data.Value);
         }
 
         [Fact]
-        public void Show_Return_NotFoundResult()
+        public async Task Show_Return_NotFoundResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 10;
 
             // Act
-            var data = controller.Show(vaccineId);
+            var data = await controller.Show(vaccineId);
 
             // Assert
             Assert.IsType<NotFoundResult>(data.Result);
         }
 
         [Fact(Skip = "Para este teste passar, é preciso lançar uma exceção no controller")]
-        public void Show_Return_BadRequestResult()
+        public async Task Show_Return_BadRequestResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 1;
 
             // Act
-            var data = controller.Show(vaccineId);
+            var data = await controller.Show(vaccineId);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(data.Result);
         }
 
         [Fact]
-        public void Show_MatchResult()
+        public async Task Show_MatchResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 4;
 
             // Act
-            var data = controller.Show(vaccineId);
+            var data = await controller.Show(vaccineId);
 
             // Assert
             Assert.IsType<GetVaccineRequest>(data.Value);
@@ -182,28 +182,28 @@ namespace CatAdoptionApiXUnitTests
         }
         // ============================================ Create action ==============================================
         [Fact]
-        public void Create_Return_CreatedResult()
+        public async Task Create_Return_CreatedResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineRequest = new CreateVaccineRequest { Name = "Vacina de teste create", Producer = "Fabricante de teste", Applied_at = DateTime.Parse("2022-08-12T17:32:00"), CatId = 5 };
 
             // Act
-            var data = controller.Create(vaccineRequest);
+            var data = await controller.Create(vaccineRequest);
 
             // Assert
             Assert.IsType<CreatedAtActionResult>(data);
         }
 
         [Fact]
-        public void Create_Return_BadRequestResult()
+        public async Task Create_Return_BadRequestResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineRequest = new CreateVaccineRequest { Producer = "Fabricante de teste", Applied_at = DateTime.Parse("2022-08-12T17:32:00"), CatId = 20 };
 
             // Act
-            var data = controller.Create(vaccineRequest);
+            var data = await controller.Create(vaccineRequest);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(data);
@@ -211,7 +211,7 @@ namespace CatAdoptionApiXUnitTests
 
         // ============================================ Update action ==============================================
         [Fact]
-        public void Update_Return_NoContentResult()
+        public async Task Update_Return_NoContentResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
@@ -219,14 +219,14 @@ namespace CatAdoptionApiXUnitTests
             var vaccineId = 2;
 
             // Act
-            var data = controller.Update(vaccineId, vaccineRequest);
+            var data = await controller.Update(vaccineId, vaccineRequest);
 
             // Assert
             Assert.IsType<NoContentResult>(data);
         }
 
         [Fact]
-        public void Update_Return_NotFoundResult()
+        public async Task Update_Return_NotFoundResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
@@ -234,14 +234,14 @@ namespace CatAdoptionApiXUnitTests
             var vaccineId = 10;
 
             // Act
-            var data = controller.Update(vaccineId, vaccineRequest);
+            var data = await controller.Update(vaccineId, vaccineRequest);
 
             // Assert
             Assert.IsType<NotFoundResult>(data);
         }
 
         [Fact(Skip = "Para este teste passar, é preciso lançar uma exceção no controller")]
-        public void Update_Return_BadRequestResult()
+        public async Task Update_Return_BadRequestResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
@@ -249,14 +249,14 @@ namespace CatAdoptionApiXUnitTests
             var vaccineId = 2;
 
             // Act
-            var data = controller.Update(vaccineId, vaccineRequest);
+            var data = await controller.Update(vaccineId, vaccineRequest);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(data);
         }
 
         [Fact]
-        public void Update_MatchResult()
+        public async Task Update_MatchResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
@@ -264,12 +264,12 @@ namespace CatAdoptionApiXUnitTests
             var vaccineId = 3;
 
             // Act
-            var data = controller.Update(vaccineId, vaccineRequest);
+            var data = await controller.Update(vaccineId, vaccineRequest);
 
             // Assert
             Assert.IsType<NoContentResult>(data);
 
-            var vaccineUpdated = _unitOfWork.VaccineRepository.GetById(vaccine => vaccine.Id == vaccineId);
+            var vaccineUpdated = await _unitOfWork.VaccineRepository.GetById(vaccine => vaccine.Id == vaccineId);
 
             Assert.Equal(vaccineId, vaccineUpdated.Id);
             Assert.Equal(vaccineRequest.Name, vaccineUpdated.Name);
@@ -279,7 +279,7 @@ namespace CatAdoptionApiXUnitTests
 
         // ============================================ PartialUpdate action ========================================
         [Fact]
-        public void PartialUpdate_Return_NoContentResult()
+        public async Task PartialUpdate_Return_NoContentResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
@@ -289,7 +289,7 @@ namespace CatAdoptionApiXUnitTests
             patch.Replace(vaccine => vaccine.Producer, "Fabricante 1 parcialmente atualizado");
 
             // Act
-            var data = controller.PartialUpdate(vaccineId, patch);
+            var data = await controller.PartialUpdate(vaccineId, patch);
 
             // Assert
             Assert.IsType<NoContentResult>(data);
@@ -297,42 +297,42 @@ namespace CatAdoptionApiXUnitTests
 
         // ============================================ Destroy action ==============================================
         [Fact]
-        public void Destroy_Return_NoContentResult()
+        public async Task Destroy_Return_NoContentResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 3;
 
             // Act
-            var data = controller.Destroy(vaccineId);
+            var data = await controller.Destroy(vaccineId);
 
             // Assert
             Assert.IsType<NoContentResult>(data);
         }
 
         [Fact]
-        public void Destroy_Return_NotFoundResult()
+        public async Task Destroy_Return_NotFoundResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 10;
 
             // Act
-            var data = controller.Destroy(vaccineId);
+            var data = await controller.Destroy(vaccineId);
 
             // Assert
             Assert.IsType<NotFoundResult>(data);
         }
 
         [Fact(Skip = "Para este teste passar, é preciso lançar uma exceção no controller")]
-        public void Destroy_Return_BadRequestResult()
+        public async Task Destroy_Return_BadRequestResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
             var vaccineId = 1;
 
             // Act
-            var data = controller.Destroy(vaccineId);
+            var data = await controller.Destroy(vaccineId);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(data);
