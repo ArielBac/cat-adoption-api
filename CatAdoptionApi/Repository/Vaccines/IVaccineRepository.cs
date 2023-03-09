@@ -6,7 +6,7 @@ namespace CatAdoptionApi.Repository.Vaccines
 {
     public interface IVaccineRepository : IRepository<Vaccine>
     {
-        PagedList<Vaccine> GetVaccinesCat(VaccineParameters vaccineParameters);
-        Vaccine GetVaccineCat(Expression<Func<Vaccine, bool>> predicate);
+        Task<PagedList<Vaccine>> GetVaccinesCat(VaccineParameters vaccineParameters);
+        Task<Vaccine> GetVaccineCat(Expression<Func<Vaccine, bool>> predicate);
     }
 }

@@ -7,6 +7,6 @@ namespace CatAdoptionApi.Repository
     {
         ICatRepository CatRepository { get; }
         IVaccineRepository VaccineRepository { get; }
-        void Commit();
+        Task Commit();
     }
 }
