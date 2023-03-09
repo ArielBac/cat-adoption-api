@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using CatAdoptionApi.Controllers;
 using CatAdoptionApi.Data;
+using CatAdoptionApi.Pagination;
 using CatAdoptionApi.Profiles;
 using CatAdoptionApi.Repository;
 using CatAdoptionApi.Requests.Vaccines;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -47,27 +49,36 @@ namespace CatAdoptionApiXUnitTests
         }
 
         // ======================================== Index action =============================================
+        // TODO
+        // Arrumar testes de index, pois depois da paginação, pararam de funcionar
         [Fact]
         public void Index_Return_OkResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext(),
+            };
+            var vaccineParameters = new VaccineParameters();
 
             // Act
-            var data = controller.Index();
+            var data = controller.Index(vaccineParameters);
 
             // Assert
             Assert.IsType<List<GetVaccineRequest>>(data.Value);
         }
 
-        [Fact(Skip = "Para este teste passar, é preciso lançar uma exceção no controller")]
+        [Fact]
+        // Como não inicializei o HttpContext, vou ter uma exceção
         public void Index_Return_BadRequestResult()
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
+            var vaccineParameters = new VaccineParameters();
 
             // Act
-            var data = controller.Index();
+            var data = controller.Index(vaccineParameters);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(data.Result);
@@ -78,15 +89,21 @@ namespace CatAdoptionApiXUnitTests
         {
             // Arrange
             var controller = new VaccineController(_unitOfWork, _mapper);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext(),
+            };
+            var vaccineParameters = new VaccineParameters();
 
             // Act
-            var data = controller.Index();
+            var data = controller.Index(vaccineParameters);
 
             // Assert
             Assert.IsType<List<GetVaccineRequest>>(data.Value);
 
             var vaccine = data.Value.Should().BeAssignableTo<List<GetVaccineRequest>>().Subject;
 
+            // O retorno é ordenado por Nome, em ordem alfabética
             Assert.Equal("v5", vaccine[4].Name);
             Assert.Equal("Fabricante 1", vaccine[4].Producer);
             Assert.Equal(DateTime.Parse("2020-05-12T15:30:00"), vaccine[4].Applied_at);
@@ -273,8 +290,6 @@ namespace CatAdoptionApiXUnitTests
 
             // Act
             var data = controller.PartialUpdate(vaccineId, patch);
-
-            var vaccines = _unitOfWork.VaccineRepository.GetVaccinesCat();
 
             // Assert
             Assert.IsType<NoContentResult>(data);

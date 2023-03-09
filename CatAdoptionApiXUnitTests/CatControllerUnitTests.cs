@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using CatAdoptionApi.Requests.Cats;
 using CatAdoptionApi.Repository;
 using Microsoft.AspNetCore.JsonPatch;
+using CatAdoptionApi.Pagination;
+using Microsoft.AspNetCore.Http;
 
 namespace CatAdoptionApiXUnitTests
 {
@@ -26,7 +28,7 @@ namespace CatAdoptionApiXUnitTests
                 .UseInMemoryDatabase("CatTestsDB")
                 .Options;
         }
-        
+
         public CatControllerUnitTests()
         {
             var config = new MapperConfiguration(cfg =>
@@ -44,27 +46,39 @@ namespace CatAdoptionApiXUnitTests
         }
 
         // ======================================== Index action =============================================
+        // TODO
+        // Arrumar testes de index, pois depois da paginação, pararam de funcionar
+        //[Fact(Skip="Depois da paginação, parou de funcionar")]
         [Fact]
         public void Index_Return_OkResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext(),
+            };
+            var catParameters = new CatParameters();
+            catParameters.PageNumber = 1;
+            catParameters.PageSize = 10;
 
             // Act
-            var data = controller.Index();
+            var data = controller.Index(catParameters);
 
             // Assert
             Assert.IsType<List<GetCatRequest>>(data.Value);
         }
 
-        [Fact(Skip = "Para este teste passar, é preciso lançar uma exceção no controller")]
+        [Fact]
+        // Como não inicializei o HttpContext, vou ter uma exceção
         public void Index_Return_BadRequestResult()
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
+            var catParameters = new CatParameters();
 
             // Act
-            var data = controller.Index();
+            var data = controller.Index(catParameters);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(data.Result);
@@ -75,28 +89,34 @@ namespace CatAdoptionApiXUnitTests
         {
             // Arrange
             var controller = new CatController(_unitOfWork, _mapper);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext(),
+            };
+            var catParameters = new CatParameters();
 
             // Act
-            var data = controller.Index();
+            var data = controller.Index(catParameters);
 
             // Assert
             Assert.IsType<List<GetCatRequest>>(data.Value);
 
             var cat = data.Value.Should().BeAssignableTo<List<GetCatRequest>>().Subject;
 
-            Assert.Equal("Pingo", cat[0].Name);
+            // O retorno é ordenado por Nome, em ordem alfabética
+            Assert.Equal("Gabi", cat[0].Name);
             Assert.Equal("Viralata", cat[0].Breed);
-            Assert.Equal(2.5, cat[0].Weight);
-            Assert.Equal(2, cat[0].Age);
-            Assert.Equal("Amarelo", cat[0].Color);
-            Assert.Equal("M", cat[0].Gender);
+            Assert.Equal(4.5, cat[0].Weight);
+            Assert.Equal(9, cat[0].Age);
+            Assert.Equal("Marrom", cat[0].Color);
+            Assert.Equal("F", cat[0].Gender);
 
-            Assert.Equal("Joana", cat[2].Name);
-            Assert.Equal("Viralata", cat[2].Breed);
-            Assert.Equal(3.5, cat[2].Weight);
-            Assert.Equal(3, cat[2].Age);
-            Assert.Equal("Branco", cat[2].Color);
-            Assert.Equal("F", cat[2].Gender);
+            Assert.Equal("Joana", cat[1].Name);
+            Assert.Equal("Viralata", cat[1].Breed);
+            Assert.Equal(3.5, cat[1].Weight);
+            Assert.Equal(3, cat[1].Age);
+            Assert.Equal("Branco", cat[1].Color);
+            Assert.Equal("F", cat[1].Gender);
         }
 
         // ======================================== Show action =============================================
@@ -154,9 +174,9 @@ namespace CatAdoptionApiXUnitTests
 
             // Assert
             Assert.IsType<GetCatRequest>(data.Value);
-           
+
             var cat = data.Value;
-            
+
             Assert.Equal(catId, cat.Id);
             Assert.Equal("Joana", cat.Name);
             Assert.Equal("Viralata", cat.Breed);
@@ -304,6 +324,11 @@ namespace CatAdoptionApiXUnitTests
             var controller = new CatController(_unitOfWork, _mapper);
             var catId = 10;
 
+            CatParameters catParameters = new CatParameters();
+            catParameters.PageNumber = 1;
+            catParameters.PageSize = 10;
+
+            var cat = _unitOfWork.CatRepository.GetCatsVaccines(catParameters);
             // Act
             var data = controller.Destroy(catId);
 
