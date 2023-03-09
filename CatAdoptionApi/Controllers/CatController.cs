@@ -31,13 +31,13 @@ public class CatController : ControllerBase
     [SwaggerResponse(200, "Lista de gatinhos retornada com sucesso", typeof(IEnumerable<GetCatRequest>))]
     [SwaggerResponse(400, "Erro inesperado")]
     [HttpGet]
-    public ActionResult<IEnumerable<GetCatRequest>> Index(
+    public async Task<ActionResult<IEnumerable<GetCatRequest>>> Index(
         [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] CatParameters catParameters
     )
     {
         try
         {
-            var cats = _unitOfWork.CatRepository.GetCatsVaccines(catParameters);
+            var cats = await _unitOfWork.CatRepository.GetCatsVaccines(catParameters);
 
             var metadata = new
             {
@@ -68,7 +68,7 @@ public class CatController : ControllerBase
     [SwaggerResponse(201, "Gatinho cadastrado com sucesso", typeof(GetCatRequest))]
     [SwaggerResponse(400, "Erro na requisição")]
     [HttpPost]
-    public ActionResult Create(
+    public async Task<ActionResult> Create(
         [FromBody, SwaggerParameter("Dados para o cadastro de um gatinho", Required = true)] CreateCatRequest catRequest
     )
     {
@@ -77,7 +77,7 @@ public class CatController : ControllerBase
             var cat = _mapper.Map<Cat>(catRequest);
 
             _unitOfWork.CatRepository.Add(cat);
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             var catGetRequest = _mapper.Map<GetCatRequest>(cat);
 
@@ -98,13 +98,13 @@ public class CatController : ControllerBase
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
     [HttpGet("{id:int}")]
-    public ActionResult<GetCatRequest> Show(
+    public async Task<ActionResult<GetCatRequest>> Show(
         [SwaggerParameter("Id do gatinhos a ser retornado", Required  = true)] int id
     )
     {
         try
         {
-            var cat = _unitOfWork.CatRepository.GetCatVaccines(c => c.Id == id);
+            var cat = await _unitOfWork.CatRepository.GetCatVaccines(c => c.Id == id);
 
             if (cat == null)
                 return NotFound();
@@ -128,21 +128,21 @@ public class CatController : ControllerBase
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
     [HttpPut("{id:int}")]
-    public ActionResult Update(
+    public async Task<ActionResult> Update(
         [SwaggerParameter("Id do gatinho a ser atualizado", Required = true)] int id, 
         [FromBody, SwaggerParameter("Dados para a atualização de um gatinho", Required = true)] UpdateCatRequest catRequest
     )
     {
         try
         {
-            var cat = _unitOfWork.CatRepository.GetById(cat => cat.Id == id);
+            var cat = await _unitOfWork.CatRepository.GetById(cat => cat.Id == id);
 
             if (cat == null) 
                 return NotFound();
 
             _mapper.Map(catRequest, cat);
             _unitOfWork.CatRepository.Update(cat);
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return NoContent();
         }
@@ -161,13 +161,13 @@ public class CatController : ControllerBase
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
     [HttpPatch("{id:int}")]
-    public IActionResult PartialUpdate(
+    public async Task<IActionResult> PartialUpdate(
         [SwaggerParameter("Id do gatinho a ser atualizado", Required = true)] int id, 
         [FromBody, SwaggerParameter("Dados para a atualização de um gatinho")] JsonPatchDocument<UpdateCatRequest> patch)
     {
         try
         {
-            var cat = _unitOfWork.CatRepository.GetById(cat => cat.Id == id);
+            var cat = await _unitOfWork.CatRepository.GetById(cat => cat.Id == id);
             if (cat == null)
                 return NotFound();
 
@@ -177,7 +177,7 @@ public class CatController : ControllerBase
 
             _mapper.Map(catToUpdate, cat);
             _unitOfWork.CatRepository.Update(cat);
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return NoContent();
         }
@@ -196,19 +196,19 @@ public class CatController : ControllerBase
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
     [HttpDelete("{id:int}")]
-    public ActionResult Destroy(
+    public async Task<ActionResult> Destroy(
         [SwaggerParameter("Id do gatinho a ser removido", Required = true)] int id
     )
     {
         try
         {
-            var cat = _unitOfWork.CatRepository.GetById(cat => cat.Id == id);
+            var cat = await _unitOfWork.CatRepository.GetById(cat => cat.Id == id);
             
             if (cat == null) 
                 return NotFound();
             
             _unitOfWork.CatRepository.Delete(cat);
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
             
             return NoContent();
         }

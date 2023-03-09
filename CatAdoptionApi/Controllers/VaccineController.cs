@@ -30,13 +30,13 @@ public class VaccineController : ControllerBase
     )]
     [SwaggerResponse(200, "Lista de vacinas retornada com sucesso", typeof(IEnumerable<GetVaccineRequest>))]
     [HttpGet]
-    public ActionResult<IEnumerable<GetVaccineRequest>> Index(
+    public async Task<ActionResult<IEnumerable<GetVaccineRequest>>> Index(
         [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] VaccineParameters vaccineParameters
     )
     {
         try
         {
-            var vaccines = _unitOfWork.VaccineRepository.GetVaccinesCat(vaccineParameters);
+            var vaccines = await _unitOfWork.VaccineRepository.GetVaccinesCat(vaccineParameters);
 
             var metadata = new
             {
@@ -67,7 +67,7 @@ public class VaccineController : ControllerBase
     [SwaggerResponse(201, "Vacina cadastrada com sucesso", typeof(GetVaccineRequest))]
     [SwaggerResponse(400, "Erro na requisição")]           
     [HttpPost]
-    public ActionResult Create(
+    public async Task<ActionResult> Create(
         [FromBody, SwaggerParameter("Dados para o cadastro de uma vacina", Required = true)] CreateVaccineRequest vaccineRequest
     )
     {
@@ -76,7 +76,7 @@ public class VaccineController : ControllerBase
             var vaccine = _mapper.Map<Vaccine>(vaccineRequest);
 
             _unitOfWork.VaccineRepository.Add(vaccine);
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             var vaccineGetRequest = _mapper.Map<GetVaccineRequest>(vaccine);
 
@@ -96,13 +96,13 @@ public class VaccineController : ControllerBase
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Vacina não encontrada")]
     [HttpGet("{id:int}")]
-    public ActionResult<GetVaccineRequest> Show(
+    public async Task<ActionResult<GetVaccineRequest>> Show(
         [SwaggerParameter("Id da vacina a ser retornada", Required = true)] int id
     )
     {
         try
         {
-            var vaccine = _unitOfWork.VaccineRepository.GetVaccineCat(vaccine => vaccine.Id == id);
+            var vaccine = await _unitOfWork.VaccineRepository.GetVaccineCat(vaccine => vaccine.Id == id);
             
             if (vaccine == null) 
                 return NotFound();
@@ -125,21 +125,21 @@ public class VaccineController : ControllerBase
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Vacina não encontrada")]
     [HttpPut("{id:int}")]
-    public ActionResult Update(
+    public async Task<ActionResult> Update(
         [SwaggerParameter("Id da vacina a ser atualizada", Required = true)] int id,
         [FromBody, SwaggerParameter("Dados para a atualização de uma vacina", Required = true)] UpdateVaccineRequest vaccineRequest
     )
     {
         try
         {
-            var vaccine = _unitOfWork.VaccineRepository.GetById(vaccine => vaccine.Id == id);
+            var vaccine = await _unitOfWork.VaccineRepository.GetById(vaccine => vaccine.Id == id);
 
             if (vaccine == null) 
                 return NotFound();
 
             _mapper.Map(vaccineRequest, vaccine);
             _unitOfWork.VaccineRepository.Update(vaccine);
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return NoContent();
         }
@@ -157,14 +157,14 @@ public class VaccineController : ControllerBase
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Vacina não encontrada")]
     [HttpPatch("{id:int}")]
-    public IActionResult PartialUpdate(
+    public async Task<IActionResult> PartialUpdate(
         [SwaggerParameter("Id da vacina a ser atualizada", Required = true)] int id,
         [FromBody, SwaggerParameter("Dados para a atualização de uma vacina")] JsonPatchDocument<UpdateVaccineRequest> patch
     )
     {
         try
         {
-            var vaccine = _unitOfWork.VaccineRepository.GetById(vaccine => vaccine.Id == id);
+            var vaccine = await _unitOfWork.VaccineRepository.GetById(vaccine => vaccine.Id == id);
 
             if (vaccine == null) 
                 return NotFound();
@@ -174,7 +174,7 @@ public class VaccineController : ControllerBase
 
             _mapper.Map(vaccineToUpdate, vaccine);
             _unitOfWork.VaccineRepository.Update(vaccine);
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return NoContent();
         }
@@ -193,19 +193,19 @@ public class VaccineController : ControllerBase
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Vacina não encontrada")]
     [HttpDelete("{id:int}")]
-    public ActionResult Destroy(
+    public async Task<ActionResult> Destroy(
         [SwaggerParameter("Id da vacina a ser removida", Required = true)] int id
     ) 
     {
         try
         {
-            var vaccine = _unitOfWork.VaccineRepository.GetById(vaccine => vaccine.Id == id);
+            var vaccine = await _unitOfWork.VaccineRepository.GetById(vaccine => vaccine.Id == id);
 
             if (vaccine == null) 
                 return NotFound();
             
             _unitOfWork.VaccineRepository.Delete(vaccine);
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
 
             return NoContent();
         }
