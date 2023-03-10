@@ -46,9 +46,6 @@ namespace CatAdoptionApiXUnitTests
         }
 
         // ======================================== Index action =============================================
-        // TODO
-        // Arrumar testes de index, pois depois da paginação, pararam de funcionar
-        //[Fact(Skip="Depois da paginação, parou de funcionar")]
         [Fact]
         public async Task Index_Return_OkResult()
         {
