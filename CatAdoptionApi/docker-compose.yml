@@ -1,0 +1,19 @@
+﻿version: '3.8'
+services:
+  mysql:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'cat_adoption_db'
+      MYSQL_USER: 'catadoption'
+      MYSQL_PASSWORD: 'catadoptionpw'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - 3307:3306
+    expose:
+      - '3306'
+    volumes:
+      - catadoptiondb:/var/lib/mysql
+volumes:
+  catadoptiondb:
