@@ -3,9 +3,11 @@ using CatAdoptionApi.Models;
 using CatAdoptionApi.Pagination;
 using CatAdoptionApi.Repository;
 using CatAdoptionApi.Requests.Cats;
+using CatAdoptionApi.SwaggerExamples.Cats;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 using System.Text.Json;
 
 namespace CatAdoptionApi.Controllers;
@@ -30,6 +32,7 @@ public class CatController : ControllerBase
     )]
     [SwaggerResponse(200, "Lista de gatinhos retornada com sucesso", typeof(IEnumerable<GetCatRequest>))]
     [SwaggerResponse(400, "Erro inesperado")]
+    [SwaggerResponseExample(200, typeof(GetCatResponseExample))]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<GetCatRequest>>> Index(
         [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] CatParameters catParameters
@@ -67,6 +70,8 @@ public class CatController : ControllerBase
     )]
     [SwaggerResponse(201, "Gatinho cadastrado com sucesso", typeof(GetCatRequest))]
     [SwaggerResponse(400, "Erro na requisição")]
+    [SwaggerRequestExample(typeof(CreateCatRequest), typeof(CreateCatRequestExample))]
+    [SwaggerResponseExample(201, typeof(CreateCatResponseExample))]
     [HttpPost]
     public async Task<ActionResult> Create(
         [FromBody, SwaggerParameter("Dados para o cadastro de um gatinho", Required = true)] CreateCatRequest catRequest
@@ -97,7 +102,8 @@ public class CatController : ControllerBase
     [SwaggerResponse(200, "Gatinho retornado com sucesso", typeof(GetCatRequest))]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
-    [HttpGet("{id:int}")]
+    [SwaggerResponseExample(200, typeof(GetCatByIdResponseExample))]
+    [HttpGet("{id}")]
     public async Task<ActionResult<GetCatRequest>> Show(
         [SwaggerParameter("Id do gatinhos a ser retornado", Required  = true)] int id
     )
@@ -127,7 +133,8 @@ public class CatController : ControllerBase
     [SwaggerResponse(204, "Gatinho atualizado com sucesso")]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
-    [HttpPut("{id:int}")]
+    [SwaggerRequestExample(typeof(UpdateCatRequest), typeof(UpdateCatRequestExample))]
+    [HttpPut("{id}")]
     public async Task<ActionResult> Update(
         [SwaggerParameter("Id do gatinho a ser atualizado", Required = true)] int id, 
         [FromBody, SwaggerParameter("Dados para a atualização de um gatinho", Required = true)] UpdateCatRequest catRequest
@@ -160,7 +167,8 @@ public class CatController : ControllerBase
     [SwaggerResponse(204, "Gatinho atualizado com sucesso")]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
-    [HttpPatch("{id:int}")]
+    [SwaggerRequestExample(typeof(JsonPatchDocument<UpdateCatRequest>), typeof(PartialUpdateCatRequestExample))]
+    [HttpPatch("{id}")]
     public async Task<IActionResult> PartialUpdate(
         [SwaggerParameter("Id do gatinho a ser atualizado", Required = true)] int id, 
         [FromBody, SwaggerParameter("Dados para a atualização de um gatinho")] JsonPatchDocument<UpdateCatRequest> patch)
@@ -195,7 +203,7 @@ public class CatController : ControllerBase
     [SwaggerResponse(204, "Gatinho removido com sucesso")]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id}")]
     public async Task<ActionResult> Destroy(
         [SwaggerParameter("Id do gatinho a ser removido", Required = true)] int id
     )

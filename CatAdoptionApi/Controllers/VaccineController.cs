@@ -2,10 +2,14 @@
 using CatAdoptionApi.Models;
 using CatAdoptionApi.Pagination;
 using CatAdoptionApi.Repository;
+using CatAdoptionApi.Requests.Cats;
 using CatAdoptionApi.Requests.Vaccines;
+using CatAdoptionApi.SwaggerExamples.Cats;
+using CatAdoptionApi.SwaggerExamples.Vaccines;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 using System.Text.Json;
 
 namespace CatAdoptionApi.Controllers;
@@ -29,6 +33,7 @@ public class VaccineController : ControllerBase
        Description = "Retorna todos os registros da tabela de vacinas do banco de dados"
     )]
     [SwaggerResponse(200, "Lista de vacinas retornada com sucesso", typeof(IEnumerable<GetVaccineRequest>))]
+    [SwaggerResponseExample(200, typeof(GetVaccineResponseExample))]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<GetVaccineRequest>>> Index(
         [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] VaccineParameters vaccineParameters
@@ -65,7 +70,9 @@ public class VaccineController : ControllerBase
        Description = "Insere um registro na tabela de vacinas no banco de dados"
     )]
     [SwaggerResponse(201, "Vacina cadastrada com sucesso", typeof(GetVaccineRequest))]
-    [SwaggerResponse(400, "Erro na requisição")]           
+    [SwaggerResponse(400, "Erro na requisição")]
+    [SwaggerRequestExample(typeof(CreateCatRequest), typeof(CreateVaccineRequestExample))]
+    [SwaggerResponseExample(201, typeof(CreateVaccineResponseExample))]
     [HttpPost]
     public async Task<ActionResult> Create(
         [FromBody, SwaggerParameter("Dados para o cadastro de uma vacina", Required = true)] CreateVaccineRequest vaccineRequest
@@ -95,7 +102,8 @@ public class VaccineController : ControllerBase
     [SwaggerResponse(200, "Vacina retornada com sucesso", typeof(GetVaccineRequest))]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Vacina não encontrada")]
-    [HttpGet("{id:int}")]
+    [SwaggerResponseExample(200, typeof(GetVaccineByIdResponseExample))]
+    [HttpGet("{id}")]
     public async Task<ActionResult<GetVaccineRequest>> Show(
         [SwaggerParameter("Id da vacina a ser retornada", Required = true)] int id
     )
@@ -124,7 +132,8 @@ public class VaccineController : ControllerBase
     [SwaggerResponse(204, "Vacina atualizada com sucesso")]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Vacina não encontrada")]
-    [HttpPut("{id:int}")]
+    [SwaggerRequestExample(typeof(UpdateVaccineRequest), typeof(UpdateVaccineRequestExample))]
+    [HttpPut("{id}")]
     public async Task<ActionResult> Update(
         [SwaggerParameter("Id da vacina a ser atualizada", Required = true)] int id,
         [FromBody, SwaggerParameter("Dados para a atualização de uma vacina", Required = true)] UpdateVaccineRequest vaccineRequest
@@ -156,7 +165,8 @@ public class VaccineController : ControllerBase
     [SwaggerResponse(204, "Vacina atualizada com sucesso")]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Vacina não encontrada")]
-    [HttpPatch("{id:int}")]
+    [SwaggerRequestExample(typeof(JsonPatchDocument<UpdateVaccineRequest>), typeof(PartialUpdateVaccineRequestExample))]
+    [HttpPatch("{id}")]
     public async Task<IActionResult> PartialUpdate(
         [SwaggerParameter("Id da vacina a ser atualizada", Required = true)] int id,
         [FromBody, SwaggerParameter("Dados para a atualização de uma vacina")] JsonPatchDocument<UpdateVaccineRequest> patch
@@ -192,7 +202,7 @@ public class VaccineController : ControllerBase
     [SwaggerResponse(204, "Vacina removida com sucesso")]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Vacina não encontrada")]
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id}")]
     public async Task<ActionResult> Destroy(
         [SwaggerParameter("Id da vacina a ser removida", Required = true)] int id
     ) 
