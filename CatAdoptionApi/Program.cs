@@ -1,6 +1,10 @@
 using CatAdoptionApi.Data;
+using CatAdoptionApi.Repository;
+using CatAdoptionApi.SwaggerExamples.Cats;
+using CatAdoptionApi.SwaggerExamples.Vaccines;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +20,9 @@ builder.Services.AddDbContext<CatAdoptionContext>(options =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddControllers().AddNewtonsoftJson(); // Add Newtonsoft
+
+// Add Repository/UnitOfWork Service
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //Possível solução para o erro de looping ao retornar os relacionamentos, porém não recomendável
 //builder.Services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
@@ -41,14 +48,17 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    Console.WriteLine(xmlFile);
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    Console.WriteLine(xmlPath);
-    options.IncludeXmlComments(xmlPath);
+    //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    //Console.WriteLine(xmlFile);
+    //var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    //Console.WriteLine(xmlPath);
+    //options.IncludeXmlComments(xmlPath);
 
     options.EnableAnnotations();
+    options.ExampleFilters();
 });
+
+builder.Services.AddSwaggerExamplesFromAssemblies(Assembly.GetEntryAssembly());
 
 // Services cors
 builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>

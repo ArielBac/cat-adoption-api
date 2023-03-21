@@ -1,6 +1,8 @@
-﻿namespace CatAdoptionApi.Models;
+﻿using CatAdoptionApi.ViewModels;
 
-public partial class Cat
+namespace CatAdoptionApi.Requests.Cats;
+
+public class GetCatRequest
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;
@@ -10,5 +12,6 @@ public partial class Cat
     public int Age { get; set; }
     public string Gender { get; set; } = null!;
 
-    public ICollection<Vaccine>? Vaccines { get; set; }
+    public ICollection<VaccineViewModel>? Vaccines { get; set; }
 }
+

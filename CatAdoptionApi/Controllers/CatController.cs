@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
-using CatAdoptionApi.Data;
-using CatAdoptionApi.Data.Dtos.Cats;
 using CatAdoptionApi.Models;
-using CatAdoptionApi.ViewModels;
+using CatAdoptionApi.Pagination;
+using CatAdoptionApi.Repository;
+using CatAdoptionApi.Requests.Cats;
+using CatAdoptionApi.SwaggerExamples.Cats;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
+using System.Text.Json;
 
 namespace CatAdoptionApi.Controllers;
 
@@ -16,12 +17,12 @@ namespace CatAdoptionApi.Controllers;
 [Produces("application/json")]
 public class CatController : ControllerBase
 {
-    private CatAdoptionContext _context;
+    private IUnitOfWork _unitOfWork;
     private IMapper _mapper;
 
-    public CatController(CatAdoptionContext context, IMapper mapper)
+    public CatController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _context = context;
+        _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
 
@@ -29,24 +30,37 @@ public class CatController : ControllerBase
         Summary = "Recupera todos os gatinhos cadastrados",
         Description = "Retorna todos os registros da tabela de gatos do banco de dados"
     )]
-    [SwaggerResponse(200, "Lista de gatinhos retornada com sucesso", typeof(IEnumerable<ReadCatDto>))]
+    [SwaggerResponse(200, "Lista de gatinhos retornada com sucesso", typeof(IEnumerable<GetCatRequest>))]
+    [SwaggerResponse(400, "Erro inesperado")]
+    [SwaggerResponseExample(200, typeof(GetCatResponseExample))]
     [HttpGet]
-    public IEnumerable<ReadCatDto> Index(
-        [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] int skip = 0, 
-        [FromQuery, SwaggerParameter("Número de registros retornados", Required = false)] int take = 10
+    public async Task<ActionResult<IEnumerable<GetCatRequest>>> Index(
+        [FromQuery, SwaggerParameter("Número de registros pulados", Required = false)] CatParameters catParameters
     )
     {
         try
         {
-            return _mapper.Map<List<ReadCatDto>>(_context.Cats
-                            .AsNoTracking()
-                            .Skip(skip)
-                            .Take(take)
-                            .Include(vaccines => vaccines.Vaccines));
+            var cats = await _unitOfWork.CatRepository.GetCatsVaccines(catParameters);
+
+            var metadata = new
+            {
+                cats.TotalCount,
+                cats.PageSize,
+                cats.CurrentPage,
+                cats.TotalPages,
+                cats.HasNext,
+                cats.HasPrevious
+            };
+
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
+                            
+            var catsGetRequest = _mapper.Map<List<GetCatRequest>>(cats);
+            
+            return catsGetRequest;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            throw new Exception(ex.Message);
+            return BadRequest("Um erro inesperado ocorreu");
         }
     }
 
@@ -54,25 +68,29 @@ public class CatController : ControllerBase
         Summary = "Cadastra um gatinho",
         Description = "Insere um registro na tabela de gatos no banco de dados"
     )]
-    [SwaggerResponse(201, "Gatinho cadastrado com sucesso", typeof(ReadCatDto))]
+    [SwaggerResponse(201, "Gatinho cadastrado com sucesso", typeof(GetCatRequest))]
     [SwaggerResponse(400, "Erro na requisição")]
+    [SwaggerRequestExample(typeof(CreateCatRequest), typeof(CreateCatRequestExample))]
+    [SwaggerResponseExample(201, typeof(CreateCatResponseExample))]
     [HttpPost]
-    public IActionResult Create(
-        [FromBody, SwaggerParameter("Dados para o cadastro de um gatinho", Required = true)] CreateCatDto catDto
+    public async Task<ActionResult> Create(
+        [FromBody, SwaggerParameter("Dados para o cadastro de um gatinho", Required = true)] CreateCatRequest catRequest
     )
     {
         try
         {
-            Cat cat = _mapper.Map<Cat>(catDto);
+            var cat = _mapper.Map<Cat>(catRequest);
 
-            _context.Cats.Add(cat);
-            _context.SaveChanges();
+            _unitOfWork.CatRepository.Add(cat);
+            await _unitOfWork.Commit();
 
-            return CreatedAtAction(nameof(Show), new { id = cat.Id }, cat); // Informa ao usuário em qual caminho ele pode encontrar o recurso criado
+            var catGetRequest = _mapper.Map<GetCatRequest>(cat);
+
+            return CreatedAtAction(nameof(Show), new { id = cat.Id }, catGetRequest); // Informa ao usuário em qual caminho ele pode encontrar o recurso criado
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return BadRequest("Um erro inesperado ocorreu");
         }
        
     }
@@ -81,31 +99,29 @@ public class CatController : ControllerBase
         Summary = "Recupera um gatinho",
         Description = "Retorna um registro da tabela de gatos no banco de dados, por id"
     )]
-    [SwaggerResponse(200, "Gatinho retornado com sucesso", typeof(ReadCatDto))]
+    [SwaggerResponse(200, "Gatinho retornado com sucesso", typeof(GetCatRequest))]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
-    [HttpGet("{id:int}")]
-    public IActionResult Show(
+    [SwaggerResponseExample(200, typeof(GetCatByIdResponseExample))]
+    [HttpGet("{id}")]
+    public async Task<ActionResult<GetCatRequest>> Show(
         [SwaggerParameter("Id do gatinhos a ser retornado", Required  = true)] int id
     )
     {
         try
         {
-            var cat = _context.Cats
-                .AsNoTracking()
-                .Include(vaccines => vaccines.Vaccines)
-                .FirstOrDefault(cat => cat.Id == id);
+            var cat = await _unitOfWork.CatRepository.GetCatVaccines(c => c.Id == id);
 
-            if (cat == null) 
+            if (cat == null)
                 return NotFound();
 
-            var catDto = _mapper.Map<ReadCatDto>(cat);
+            var catGetRequest = _mapper.Map<GetCatRequest>(cat);
 
-            return Ok(catDto);
+            return catGetRequest;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return BadRequest("Um erro inesperado ocorreu");
         }
        
     }
@@ -117,28 +133,29 @@ public class CatController : ControllerBase
     [SwaggerResponse(204, "Gatinho atualizado com sucesso")]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
-    [HttpPut("{id:int}")]
-    public IActionResult Update(
+    [SwaggerRequestExample(typeof(UpdateCatRequest), typeof(UpdateCatRequestExample))]
+    [HttpPut("{id}")]
+    public async Task<ActionResult> Update(
         [SwaggerParameter("Id do gatinho a ser atualizado", Required = true)] int id, 
-        [FromBody, SwaggerParameter("Dados para a atualização de um gatinho", Required = true)] UpdateCatDto catDto
+        [FromBody, SwaggerParameter("Dados para a atualização de um gatinho", Required = true)] UpdateCatRequest catRequest
     )
     {
         try
         {
-            var cat = _context.Cats
-                .FirstOrDefault(cat => cat.Id == id);
+            var cat = await _unitOfWork.CatRepository.GetById(cat => cat.Id == id);
 
             if (cat == null) 
                 return NotFound();
 
-            _mapper.Map(catDto, cat);
-            _context.SaveChanges();
+            _mapper.Map(catRequest, cat);
+            _unitOfWork.CatRepository.Update(cat);
+            await _unitOfWork.Commit();
 
             return NoContent();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return BadRequest("Um erro inesperado ocorreu");
         }
        
     }
@@ -150,34 +167,31 @@ public class CatController : ControllerBase
     [SwaggerResponse(204, "Gatinho atualizado com sucesso")]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
-    [HttpPatch("{id:int}")]
-    public IActionResult PartialUpdate(
+    [SwaggerRequestExample(typeof(JsonPatchDocument<UpdateCatRequest>), typeof(PartialUpdateCatRequestExample))]
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> PartialUpdate(
         [SwaggerParameter("Id do gatinho a ser atualizado", Required = true)] int id, 
-        [FromBody, SwaggerParameter("Dados para a atualização de um gatinho")] JsonPatchDocument<UpdateCatDto> patch)
+        [FromBody, SwaggerParameter("Dados para a atualização de um gatinho")] JsonPatchDocument<UpdateCatRequest> patch)
     {
         try
         {
-            var cat = _context.Cats.FirstOrDefault(cat => cat.Id == id);
-            if (cat == null) 
+            var cat = await _unitOfWork.CatRepository.GetById(cat => cat.Id == id);
+            if (cat == null)
                 return NotFound();
 
             // Verificar se os campos de patch são válidos
-            var catToUpdate = _mapper.Map<UpdateCatDto>(cat);
+            var catToUpdate = _mapper.Map<UpdateCatRequest>(cat);
             patch.ApplyTo(catToUpdate, ModelState);
 
-            if (!TryValidateModel(catToUpdate))
-            {
-                return ValidationProblem(ModelState);
-            }
-
             _mapper.Map(catToUpdate, cat);
-            _context.SaveChanges();
+            _unitOfWork.CatRepository.Update(cat);
+            await _unitOfWork.Commit();
 
             return NoContent();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return BadRequest("Um erro inesperado ocorreu");
         }
         
     }
@@ -189,27 +203,26 @@ public class CatController : ControllerBase
     [SwaggerResponse(204, "Gatinho removido com sucesso")]
     [SwaggerResponse(400, "Erro na requisição")]
     [SwaggerResponse(404, "Gatinho não encontrado")]
-    [HttpDelete("{id:int}")]
-    public IActionResult Destroy(
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Destroy(
         [SwaggerParameter("Id do gatinho a ser removido", Required = true)] int id
     )
     {
         try
         {
-            var cat = _context.Cats
-                .FirstOrDefault(cat => cat.Id == id);
+            var cat = await _unitOfWork.CatRepository.GetById(cat => cat.Id == id);
             
             if (cat == null) 
                 return NotFound();
             
-            _context.Cats.Remove(cat);
-            _context.SaveChanges();
+            _unitOfWork.CatRepository.Delete(cat);
+            await _unitOfWork.Commit();
             
             return NoContent();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return BadRequest("Um erro inesperado ocorreu");
         }
         
     }
